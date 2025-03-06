@@ -64,10 +64,12 @@ jobs:
             $versionParts = $VERSION_NUMBER -split '\.'
             $versionParts[2] = [int]$versionParts[2] + 1
             $VERSION_NUMBER = $versionParts -join '.'
+            Write-Output "VERSION CORRECTED: $VERSION_NUMBER"
 
             # Add SP info
-            $DISTANCE = $DISTANCE.ToString("D3")  # Ensure 3-digit format
-            $VERSION = "$VERSION_NUMBER-RC$DISTANCE"
+            $DISTANCE_PADDED = "{0:D3}" -f $DISTANCE
+            Write-Output "DISTANCE_PADDED: $DISTANCE_PADDED"
+            $VERSION = "$VERSION_NUMBER-RC$DISTANCE_PADDED"
         } else {
             $VERSION = $VERSION_NUMBER
         }
