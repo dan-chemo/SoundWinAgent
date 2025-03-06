@@ -67,7 +67,7 @@ jobs:
             Write-Output "VERSION CORRECTED: $VERSION_NUMBER"
 
             # Add SP info
-            $DISTANCE_PADDED = "{0:D3}" -f $DISTANCE
+            $DISTANCE_PADDED = $DISTANCE.ToString().PadLeft(3, '0')
             Write-Output "DISTANCE_PADDED: $DISTANCE_PADDED"
             $VERSION = "$VERSION_NUMBER-RC$DISTANCE_PADDED"
         } else {
