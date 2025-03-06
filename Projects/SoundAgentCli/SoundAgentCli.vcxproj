@@ -24,6 +24,7 @@
     <Import Project="..\..\packages\spdlog-native.0.17.0\build\native\spdlog-native.targets" Condition="Exists('..\..\packages\spdlog-native.0.17.0\build\native\spdlog-native.targets')" />
     <Import Project="..\..\packages\CommonCppModules.2.1.0\build\native\CommonCppModules.targets" Condition="Exists('..\..\packages\CommonCppModules.2.1.0\build\native\CommonCppModules.targets')" />
     <Import Project="..\..\packages\SpdLogger.2.1.0\build\native\SpdLogger.targets" Condition="Exists('..\..\packages\SpdLogger.2.1.0\build\native\SpdLogger.targets')" />
+    <Import Project="..\..\packages\MSBuildTasks.1.5.0.235\build\MSBuildTasks.targets" Condition="Exists('..\..\packages\MSBuildTasks.1.5.0.235\build\MSBuildTasks.targets')" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup>
@@ -82,17 +83,28 @@
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildThisFileDirectory)..\..\msbuildLibCpp\Ed.Cpp.targets" />
-  <!--
-  <Target Name="ZipOutput" AfterTargets="Build">
+  <Target Name="ProcessReleaseNotesAndZipOutput" AfterTargets="Build">
     <PropertyGroup>
-      <SourceDeliveryFolder>$(OutDir)</SourceDeliveryFolder>
-      <TargetDeliveryFolder>$(SolutionDir)artifacts\</TargetDeliveryFolder>
+      <BaseDirectory>$(MSBuildThisFileDirectory)..\..\</BaseDirectory>
+      <ArtifactsDirectory>$(BaseDirectory)artifacts\</ArtifactsDirectory>
+      <ReleaseNotesFileName>SoundWinAgent-Release-Notes.md</ReleaseNotesFileName>
+      <ReleaseNotesTargetPathName>$(ArtifactsDirectory)$(ReleaseNotesFileName)</ReleaseNotesTargetPathName>
+      <PublishFullDirectory>$(ProjectDir)PublishDir</PublishFullDirectory>
       <ZipFileNameSuffix Condition=" '$(Configuration)' == 'Debug' ">-Debug</ZipFileNameSuffix>
-      <ZipFileName>$(AssemblyName)$(ZipFileNameSuffix)-$(PackageVersion).zip</ZipFileName>
+      <ZipFileName>$(ArtifactsDirectory)$(AssemblyName)$(ZipFileNameSuffix)-$(PackageVersion).zip</ZipFileName>
     </PropertyGroup>
-    <Exec WorkingDirectory="$(SourceDeliveryFolder)" Command="$(NUGET_PACKAGES)7-Zip.CommandLine\18.1.0\tools\7za.exe a -tzip -r -x!*.iobj -x!*.*pdb -x!*.lib -x!*.exp -x!*Test*.*pdb &quot;$(TargetDeliveryFolder)$(ZipFileName)&quot; ." />
+    <Copy SourceFiles="$(BaseDirectory)$(ReleaseNotesFileName)" DestinationFolder="$(ArtifactsDirectory)" />
+    <FileUpdate Files="$(ReleaseNotesTargetPathName)" Regex="\$version\$" ReplacementText="$(PackageVersion)" />
+    <Time Format="dd.MM.yyyy">
+      <Output TaskParameter="FormattedTime" PropertyName="BuildDate" />
+    </Time>
+    <FileUpdate Files="$(ReleaseNotesTargetPathName)" Regex="\$date\$" ReplacementText="$(BuildDate)" />
+    <Copy DestinationFolder="$(PublishFullDirectory)" SourceFiles="$(ArtifactsDirectory)$(ReleaseNotesFileName)" />
+    <Copy DestinationFolder="$(PublishFullDirectory)" SourceFiles="$(OutputPath)\SoundAgentDll.dll" />
+    <Copy DestinationFolder="$(PublishFullDirectory)" SourceFiles="$(OutputPath)\SoundAgentCli.exe" />
+    <ZipDirectory Overwrite="true" SourceDirectory="$(PublishFullDirectory)" DestinationFile="$(ZipFileName)" />
+    <RemoveDir Directories="$(PublishFullDirectory)" />
   </Target>
-  -->
   <ProjectExtensions>
     <VisualStudio>
       <UserProperties RESOURCE_FILE="SoundAgentCli.rc" />
@@ -105,5 +117,6 @@
     <Error Condition="!Exists('..\..\packages\spdlog-native.0.17.0\build\native\spdlog-native.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\packages\spdlog-native.0.17.0\build\native\spdlog-native.targets'))" />
     <Error Condition="!Exists('..\..\packages\CommonCppModules.2.1.0\build\native\CommonCppModules.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\packages\CommonCppModules.2.1.0\build\native\CommonCppModules.targets'))" />
     <Error Condition="!Exists('..\..\packages\SpdLogger.2.1.0\build\native\SpdLogger.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\packages\SpdLogger.2.1.0\build\native\SpdLogger.targets'))" />
+    <Error Condition="!Exists('..\..\packages\MSBuildTasks.1.5.0.235\build\MSBuildTasks.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\packages\MSBuildTasks.1.5.0.235\build\MSBuildTasks.targets'))" />
   </Target>
 </Project>

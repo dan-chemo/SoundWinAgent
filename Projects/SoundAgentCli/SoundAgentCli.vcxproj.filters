@@ -23,7 +23,7 @@
     <ClInclude Include="AssemblyInformation.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\AudioControllerLib\generate-uuid.h">
+    <ClInclude Include="..\SoundAgentLib\generate-uuid.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -37,9 +37,9 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
-    <None Include="res\AudioControllerCli.rc2" />
+    <None Include="res\SoundAgentCli.rc2" />
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="AudioControllerCli.rc" />
+    <ResourceCompile Include="SoundAgentCli.rc" />
   </ItemGroup>
 </Project>

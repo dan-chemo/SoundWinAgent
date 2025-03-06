@@ -10,7 +10,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		.gitignore = .gitignore
 		.github\workflows\build.yml = .github\workflows\build.yml
 		README.md = README.md
-		SoundAgent-Release-Notes.md = SoundAgent-Release-Notes.md
+		SoundWinAgent-Release-Notes.md = SoundWinAgent-Release-Notes.md
 	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SoundAgentCli", "Projects\SoundAgentCli\SoundAgentCli.vcxproj", "{887D7CD4-2184-467F-AC36-153E627EC218}"

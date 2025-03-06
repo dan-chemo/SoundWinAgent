@@ -1,4 +1,4 @@
-﻿Sound Agent - Release Notes 
+﻿Sound Windows Agent - Release Notes 
 =====================================
 ~~~
 Copyright 2024-2025 by Eduard Danziger
@@ -21,5 +21,4 @@ Released on 20.12.2024
 ~~~
 
 ## Change
-- SoundAgentClient: Refresh button is disabled if no device
 - Lib: Mute -> volume set to zero
