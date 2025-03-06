@@ -66,8 +66,8 @@ jobs:
             $VERSION_NUMBER = $versionParts -join '.'
 
             # Add SP info
-            $DISTANCE = "{0:D3}" -f $DISTANCE
-            $VERSION = "$VERSION_NUMBER-SP$DISTANCE"
+            $DISTANCE = $DISTANCE.ToString("D3")  # Ensure 3-digit format
+            $VERSION = "$VERSION_NUMBER-RC$DISTANCE"
         } else {
             $VERSION = $VERSION_NUMBER
         }
