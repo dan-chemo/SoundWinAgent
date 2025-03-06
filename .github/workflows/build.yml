@@ -32,14 +32,10 @@ jobs:
           --store-password-in-clear-text
 
     - name: Restore NuGets
-      run: nuget restore PnPAudioCheck.sln
+      run: nuget restore SoundWinAgent.sln
 
     - name: Build with MSBuild
       run: msbuild /p:Configuration=Release /target:Rebuild -restore
-
-    - name: Publish  MSBuild
-      shell: pwsh
-      run: dotnet publish "Projects/AudioClient/AudioClient.csproj" -c Release -p:PublishProfile=FolderProfile
 
     - name: Upload entire artifacts directory
       uses: actions/upload-artifact@v4
