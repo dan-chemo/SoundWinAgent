@@ -92,10 +92,10 @@ jobs:
         # ..\..\vcpkg\vcpkg.exe install --triplet=x64-windows
     #    vcpkg.exe install --triplet=x64-windows
 
-    # - name: Integrate vcpkg with MSBuild
-    #  run: |
+    - name: Integrate vcpkg with MSBuild
+      run: |
         # .\vcpkg\vcpkg.exe integrate install
-    #    vcpkg integrate install
+        vcpkg integrate install
 
     - name: Build with MSBuild
       run: msbuild /p:Configuration=Release /p:VcpkgEnabled=true /p:VcpkgManifestPath=Projects/SoundAgentService/vcpkg.json /target:Rebuild -restore
