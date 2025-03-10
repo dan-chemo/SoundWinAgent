@@ -26,12 +26,18 @@
     <ClInclude Include="..\SoundAgentLib\generate-uuid.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="AudioDeviceApiClient.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="SoundAgentService.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="AudioDeviceApiClient.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

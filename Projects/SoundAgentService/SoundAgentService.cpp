@@ -11,6 +11,7 @@
 #include <Poco/UnicodeConverter.h>
 #include <vector>
 
+#include "AudioDeviceApiClient.h"
 #include "../SoundAgentLib/CoInitRaiiHelper.h"
 #include "../SoundAgentDll/SoundAgentInterface.h"
 #include "../SoundAgentLib/DefToString.h"
@@ -27,7 +28,22 @@ public:
 
 public:
     void OnCollectionChanged(AudioDeviceCollectionEvent event, const std::wstring& devicePnpId) override
-    {
+	{
+		std::wstring eventStr = ed::GetDeviceCollectionEventAsString(event);
+//		SPD_L->info(L"Event: " + eventStr + L" PnpId: " + devicePnpId);
+		if (event == AudioDeviceCollectionEvent::Discovered)
+        {
+            AudioDeviceApiClient apiClient(L"https://your-api-endpoint.com");
+
+            // Example device data
+            const std::string pnpId = "USB\\VID_1234&PID_5678";
+            const std::string name = "Speakers (High Definition Audio Device)";
+            constexpr int volume = 75;
+            const std::string hostName = "My-PC";
+
+            // Post device data to the API
+            apiClient.PostDeviceToApi(pnpId, name, volume, hostName);
+        }
     }
 
     void OnTrace(const std::wstring& line) override

@@ -62,11 +62,13 @@
   <ItemGroup>
     <ClInclude Include="..\SoundAgentLib\generate-uuid.h" />
     <ClInclude Include="AssemblyInformation.h" />
+    <ClInclude Include="AudioDeviceApiClient.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="AudioDeviceApiClient.cpp" />
     <ClCompile Include="SoundAgentService.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader>Create</PrecompiledHeader>
@@ -104,8 +106,8 @@
     <FileUpdate Files="$(ReleaseNotesTargetPathName)" Regex="\$date\$" ReplacementText="$(BuildDate)" />
     <Copy DestinationFolder="$(PublishFullDirectory)" SourceFiles="$(ArtifactsDirectory)$(ReleaseNotesFileName)" />
     <ItemGroup>
-        <BinFiles Include="$(OutputPath)*.dll" />
-        <BinFiles Include="$(OutputPath)*.exe" />
+      <BinFiles Include="$(OutputPath)*.dll" />
+      <BinFiles Include="$(OutputPath)*.exe" />
     </ItemGroup>
     <Copy DestinationFolder="$(PublishFullDirectory)" SourceFiles="@(BinFiles)" />
     <ZipDirectory Overwrite="true" SourceDirectory="$(PublishFullDirectory)" DestinationFile="$(ZipFileName)" />
