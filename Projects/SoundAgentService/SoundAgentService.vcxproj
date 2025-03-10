@@ -103,8 +103,11 @@
     </Time>
     <FileUpdate Files="$(ReleaseNotesTargetPathName)" Regex="\$date\$" ReplacementText="$(BuildDate)" />
     <Copy DestinationFolder="$(PublishFullDirectory)" SourceFiles="$(ArtifactsDirectory)$(ReleaseNotesFileName)" />
-    <Copy DestinationFolder="$(PublishFullDirectory)" SourceFiles="$(OutputPath)\*.dll" />
-    <Copy DestinationFolder="$(PublishFullDirectory)" SourceFiles="$(OutputPath)\*.exe" />
+    <ItemGroup>
+        <BinFiles Include="$(OutputPath)*.dll" />
+        <BinFiles Include="$(OutputPath)*.exe" />
+    </ItemGroup>
+    <Copy DestinationFolder="$(PublishFullDirectory)" SourceFiles="@(BinFiles)" />
     <ZipDirectory Overwrite="true" SourceDirectory="$(PublishFullDirectory)" DestinationFile="$(ZipFileName)" />
     <RemoveDir Directories="$(PublishFullDirectory)" />
   </Target>
