@@ -16,8 +16,8 @@
     <RootNamespace>ed</RootNamespace>
     <ConfigurationType>Application</ConfigurationType>
     <CharacterSet>Unicode</CharacterSet>
-    <VcpkgEnabled>true</VcpkgEnabled>
-    <VcpkgManifestEnabled>true</VcpkgManifestEnabled>
+    <!-- Enable<VcpkgEnabled>true</VcpkgEnabled> -->
+    <!-- Enable<VcpkgManifestEnabled>true</VcpkgManifestEnabled> -->
   </PropertyGroup>
   <Import Project="$(MSBuildThisFileDirectory)..\..\msbuildLibCpp\Ed.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
@@ -74,6 +74,7 @@
   <ItemGroup>
     <None Include="packages.config" />
     <None Include="res\SoundAgentService.rc2" />
+    <None Include="vcpkg.json" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="SoundAgentService.rc" />
