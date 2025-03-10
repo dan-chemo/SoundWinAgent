@@ -98,7 +98,7 @@ jobs:
     #    vcpkg integrate install
 
     - name: Build with MSBuild
-      run: msbuild /p:Configuration=Release /p:Platform=x64 /p:VcpkgEnabled=true /p:VcpkgManifestPath=Projects/SoundAgentService/vcpkg.json /target:Rebuild -restore
+      run: msbuild /p:Configuration=Release /p:VcpkgEnabled=true /p:VcpkgManifestPath=Projects/SoundAgentService/vcpkg.json /target:Rebuild -restore
 
     - name: Upload entire artifacts directory
       uses: actions/upload-artifact@v4
