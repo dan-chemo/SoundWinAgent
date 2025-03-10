@@ -4,9 +4,11 @@
 #include <cpprest/json.h>
 #include <nlohmann/json.hpp>
 #include <string>
-#include <chrono>
-#include <iomanip>
 #include <sstream>
+
+#include <TimeUtils.h>
+
+#include "FormattedOutput.h"
 
 using namespace web::http;  // NOLINT(clang-diagnostic-header-hygiene)
 using namespace web::http::client;  // NOLINT(clang-diagnostic-header-hygiene)
@@ -19,15 +21,21 @@ public:
     }
 
     // Post device data to the REST API
-    void PostDeviceToApi(const std::string& pnpId, const std::string& name, int volume, const std::string& hostName) const
+    void PostDeviceToApi(const std::wstring& pnpId, const std::wstring& name, int volume, const std::wstring& hostName) const
     {
-        // Create JSON payload
+        const std::string pnpIdUtf8 = utility::conversions::to_utf8string(pnpId);
+        const std::string nameUtf8 = utility::conversions::to_utf8string(name);
+        const std::string hostNameUtf8 = utility::conversions::to_utf8string(hostName);
+
+        auto localTimeAsString = ed::getLocalTimeAsString("T");
+        localTimeAsString = localTimeAsString.substr(0, localTimeAsString.length() - 7);
+
         const nlohmann::json payload = {
-            {"pnpId", pnpId},
-            {"name", name},
+            {"pnpId", pnpIdUtf8},
+            {"name", nameUtf8},
             {"volume", volume},
-            {"lastSeen", get_current_timestamp()},
-            {"hostName", hostName}
+            {"lastSeen", localTimeAsString},
+            {"hostName", hostNameUtf8}
         };
 
         // Convert nlohmann::json to cpprestsdk::json::value
@@ -40,31 +48,26 @@ public:
         request.headers().set_content_type(U("application/json"));
 
         // Send request and handle response
+        const pplx::task<http_response> responseTask = client.request(request);
         // ReSharper disable once CppExpressionWithoutSideEffects
-        client.request(request)
-              .then([](const http_response & response) {
-                  if (response.status_code() == status_codes::NoContent) {
-                      std::cout << "Device data posted successfully!\n";
-                  }
-                  else {
-                      std::cerr << "Failed to post device data. Status code: " << response.status_code() << "\n";
-                  }
-              })
-              .wait(); // Blocking call for simplicity (use .then() for async)
+        responseTask.then([](const http_response& response) {
+            if (response.status_code() == status_codes::Created ||
+                response.status_code() == status_codes::OK ||
+                response.status_code() == status_codes::NoContent)
+            {
+                const auto msg = "Device data posted successfully!";
+                std::cout << FormattedOutput::CurrentLocalTimeWithoutDate << msg << '\n';
+                SPD_L->info(msg);
+            }
+            else {
+                const auto statusCode = response.status_code();
+                const auto msg = "Failed to post device data. Status code: " + std::to_string(statusCode);
+                std::cout << FormattedOutput::CurrentLocalTimeWithoutDate << msg << '\n';
+                SPD_L->error(msg);
+            }
+            }).wait(); // Blocking call for simplicity
     }
 
 private:
     std::wstring apiBaseUrl_;
-
-    // Helper function to get current timestamp in ISO 8601 format  
-    static std::string get_current_timestamp() {  
-           auto now = std::chrono::system_clock::now();  
-           auto in_time_t = std::chrono::system_clock::to_time_t(now);  
-
-           std::stringstream ss;  
-           std::tm tm;  
-           gmtime_s(&tm, &in_time_t);  
-           ss << std::put_time(&tm, "%Y-%m-%dT%H:%M:%SZ");  
-           return ss.str();  
-       }
 };

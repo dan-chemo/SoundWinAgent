@@ -84,5 +84,6 @@ public void $Name$()&#xD;
 	<s:Boolean x:Key="/Default/UserDictionary/Words/=uild/@EntryIndexedValue">True</s:Boolean>
 	<s:Boolean x:Key="/Default/UserDictionary/Words/=Uninitializes/@EntryIndexedValue">True</s:Boolean>
 	<s:Boolean x:Key="/Default/UserDictionary/Words/=wfsresult/@EntryIndexedValue">True</s:Boolean>
+	<s:Boolean x:Key="/Default/UserDictionary/Words/=wstring/@EntryIndexedValue">True</s:Boolean>
 	<s:Boolean x:Key="/Default/UserDictionary/Words/=_0020a_0020wfsres/@EntryIndexedValue">True</s:Boolean>
 </wpf:ResourceDictionary>

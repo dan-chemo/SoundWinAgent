@@ -77,7 +77,7 @@ public:
         }
         return os;
     }
-private:
+
     static std::ostream & CurrentLocalTimeWithoutDate(std::ostream & os)
     {
         const std::string currentTime = ed::getLocalTimeAsString();

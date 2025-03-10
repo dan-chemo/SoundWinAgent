@@ -46,7 +46,7 @@ public:
 
 		if (event == AudioDeviceCollectionEvent::Discovered)
         {
-            AudioDeviceApiClient apiClient(L"https://your-api-endpoint.com");
+            AudioDeviceApiClient apiClient(L"http://localhost:5027/api/AudioDevices");
 
             // Example device data
             const std::wstring pnpId = foundDevice->GetPnpId();
@@ -55,7 +55,7 @@ public:
             const std::wstring hostName = foundDevice->GetName();
 
             // Post device data to the API
-            //apiClient.PostDeviceToApi(pnpId, name, volume, hostName);
+            apiClient.PostDeviceToApi(pnpId, name, volume, hostName);
         }
     }
 
@@ -75,10 +75,11 @@ private:
         const size_t deviceCount = collection_.GetSize();
         for (size_t i = 0; i < deviceCount; ++i)
         {
-            if (const std::unique_ptr device(collection_.CreateItem(i));
-                device && device->GetPnpId() == pnpId)
+            if (std::unique_ptr device(collection_.CreateItem(i))
+              ; device && device->GetPnpId() == pnpId
+            )
             {
-                return std::shared_ptr<SoundDeviceInterface>(device.get());
+                return std::shared_ptr<SoundDeviceInterface>(device.release());
             }
         }
         return nullptr;
