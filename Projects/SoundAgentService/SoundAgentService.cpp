@@ -20,13 +20,6 @@ public:
     explicit Observer(AudioDeviceCollectionInterface& collection)
         : collection_(collection)
     {
-        if (std::filesystem::path logFile;
-            ed::utility::AppPath::GetAndValidateLogFileInProgramData(
-                logFile, RESOURCE_FILENAME_ATTRIBUTE)
-            )
-        {
-            ed::model::Logger::Inst().SetPathName(logFile);
-        }
     }
 
     DISALLOW_COPY_MOVE(Observer);
@@ -64,7 +57,7 @@ protected:
     int main(const std::vector<std::string>& args) override {
         try {
             // Service initialization
-            logger().information("Starting Audio Device Service");
+            SPD_L->info("Starting Audio Device Service");
 
             const auto coll(SoundAgent::CreateDeviceCollection(L"", true));
             Observer o(*coll);
@@ -74,12 +67,12 @@ protected:
 
             coll->Unsubscribe(o);
 
-            logger().information("Stopping service");
+            SPD_L->info("Stopping service");
             return Application::EXIT_OK;
         }
         catch (const Poco::Exception& ex) {
-            logger().log(ex);
-            return Application::EXIT_SOFTWARE;
+			SPD_L-> error(ex.displayText());
+            return EXIT_SOFTWARE;
         }
     }
 
@@ -102,6 +95,14 @@ int _tmain(int argc, _TCHAR * argv[])
     _CrtSetReportMode(_CRT_ERROR, _CRTDBG_MODE_FILE);
     _CrtSetReportFile(_CRT_WARN, _CRTDBG_FILE_STDOUT);
     _CrtSetReportFile(_CRT_ERROR, _CRTDBG_FILE_STDERR);
+
+    if (std::filesystem::path logFile;
+        ed::utility::AppPath::GetAndValidateLogFileInProgramData(
+            logFile, RESOURCE_FILENAME_ATTRIBUTE)
+        )
+    {
+        ed::model::Logger::Inst().SetPathName(logFile);
+    }
 
     ed::CoInitRaiiHelper coInitHelper;
 
