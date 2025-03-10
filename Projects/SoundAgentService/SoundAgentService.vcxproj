@@ -63,12 +63,14 @@
     <ClInclude Include="..\SoundAgentLib\generate-uuid.h" />
     <ClInclude Include="AssemblyInformation.h" />
     <ClInclude Include="AudioDeviceApiClient.h" />
+    <ClInclude Include="FormattedOutput.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="AudioDeviceApiClient.cpp" />
+    <ClCompile Include="FormattedOutput.cpp" />
     <ClCompile Include="SoundAgentService.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader>Create</PrecompiledHeader>
@@ -85,10 +87,15 @@
   <ItemGroup>
     <ProjectReference Include="..\SoundAgentDll\SoundAgentDll.vcxproj">
       <Project>{92afad2a-a573-4239-80dc-4cdc28fd3a7e}</Project>
+      <CopyLocalSatelliteAssemblies>true</CopyLocalSatelliteAssemblies>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildThisFileDirectory)..\..\msbuildLibCpp\Ed.Cpp.targets" />
   <Target Name="ProcessReleaseNotesAndZipOutput" AfterTargets="Build">
+    <ItemGroup>
+        <DependentDLLs Include="@(ProjectReference->'%(RootDir)%(Directory)$(OutDir)%(Filename).dll')" />
+    </ItemGroup>
+    <Copy SourceFiles="@(DependentDLLs)" DestinationFolder="$(OutDir)" Condition="Exists('%(DependentDLLs.FullPath)')" />
     <PropertyGroup>
       <BaseDirectory>$(MSBuildThisFileDirectory)..\..\</BaseDirectory>
       <ArtifactsDirectory>$(BaseDirectory)artifacts\</ArtifactsDirectory>

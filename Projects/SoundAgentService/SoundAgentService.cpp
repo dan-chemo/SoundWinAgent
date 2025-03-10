@@ -12,9 +12,12 @@
 #include <vector>
 
 #include "AudioDeviceApiClient.h"
+#include "FormattedOutput.h"
 #include "../SoundAgentLib/CoInitRaiiHelper.h"
 #include "../SoundAgentDll/SoundAgentInterface.h"
 #include "../SoundAgentLib/DefToString.h"
+
+#include "FormattedOutput.h"
 
 class Observer final : public AudioDeviceCollectionObserverInterface {
 public:
@@ -29,8 +32,9 @@ public:
 public:
     void OnCollectionChanged(AudioDeviceCollectionEvent event, const std::wstring& devicePnpId) override
 	{
-		std::wstring eventStr = ed::GetDeviceCollectionEventAsString(event);
-//		SPD_L->info(L"Event: " + eventStr + L" PnpId: " + devicePnpId);
+        FormattedOutput::PrintEvent(event, devicePnpId);
+        FormattedOutput::PrintCollection(collection_);
+
 		if (event == AudioDeviceCollectionEvent::Discovered)
         {
             AudioDeviceApiClient apiClient(L"https://your-api-endpoint.com");
@@ -48,13 +52,7 @@ public:
 
     void OnTrace(const std::wstring& line) override
     {
-        std::string result; result.reserve(line.size());
-        std::ranges::for_each(line, [&result](const auto p)
-            {
-                result += static_cast<char>(p);
-            });
-
-        SPD_L->info(result);
+        SPD_L->info(FormattedOutput::WString2StringTruncate(line));
     }
 
     void OnTraceDebug(const std::wstring& line) override
