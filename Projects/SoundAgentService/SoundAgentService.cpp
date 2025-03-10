@@ -35,18 +35,27 @@ public:
         FormattedOutput::PrintEvent(event, devicePnpId);
         FormattedOutput::PrintCollection(collection_);
 
+        const std::shared_ptr foundDevice = FindDevice(devicePnpId);
+		if (!foundDevice)
+		{
+			const std::wstring line = L"Device with PnP id " + devicePnpId + L" not found in the collection.";
+            SPD_L->error(FormattedOutput::WString2StringTruncate(line));
+            std::wcout << FormattedOutput::CurrentLocalTimeAsWideStringWithoutDate << line << '\n';
+            return;
+		}
+
 		if (event == AudioDeviceCollectionEvent::Discovered)
         {
             AudioDeviceApiClient apiClient(L"https://your-api-endpoint.com");
 
             // Example device data
-            const std::string pnpId = "USB\\VID_1234&PID_5678";
-            const std::string name = "Speakers (High Definition Audio Device)";
-            constexpr int volume = 75;
-            const std::string hostName = "My-PC";
+            const std::wstring pnpId = foundDevice->GetPnpId();
+            const std::wstring name = foundDevice->GetName();
+            const int volume = foundDevice->GetCurrentRenderVolume();
+            const std::wstring hostName = foundDevice->GetName();
 
             // Post device data to the API
-            apiClient.PostDeviceToApi(pnpId, name, volume, hostName);
+            //apiClient.PostDeviceToApi(pnpId, name, volume, hostName);
         }
     }
 
@@ -60,6 +69,20 @@ public:
         OnTrace(line);
     }
 
+private:
+    [[nodiscard]] std::shared_ptr<SoundDeviceInterface> FindDevice(const std::wstring & pnpId) const
+    {
+        const size_t deviceCount = collection_.GetSize();
+        for (size_t i = 0; i < deviceCount; ++i)
+        {
+            if (const std::unique_ptr device(collection_.CreateItem(i));
+                device && device->GetPnpId() == pnpId)
+            {
+                return std::shared_ptr<SoundDeviceInterface>(device.get());
+            }
+        }
+        return nullptr;
+    }
 private:
     AudioDeviceCollectionInterface& collection_;
 };

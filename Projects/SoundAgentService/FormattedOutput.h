@@ -22,17 +22,23 @@ public:
         std::wostringstream wos; wos << L"Event caught: " << ed::GetDeviceCollectionEventAsString(event) << L"."
             << L" Device PnP id: " << devicePnpId << L'\n';
         SPD_L->info(WString2StringTruncate(wos.str()));
-        std::wcout << CurrentLocalTimeWithoutDate << wos.str() << '\n';
+        std::wcout << CurrentLocalTimeAsWideStringWithoutDate << wos.str() << '\n';
     }
 
 
     static void PrintCollection(const AudioDeviceCollectionInterface& collection)
     {
+        const std::string message1("Current device collection:...");
+        std::cout << CurrentLocalTimeWithoutDate << message1 << '\n';
+		SPD_L->info(message1);
         for (size_t i = 0; i < collection.GetSize(); ++i)
         {
             const std::unique_ptr deviceSmartPtr(collection.CreateItem(i));
             PrintDeviceInfo(deviceSmartPtr.get());
         }
+        const std::string message2("...End of current device collection.");
+        std::cout << CurrentLocalTimeWithoutDate << message2 << '\n';
+        SPD_L->info(message2);
     }
 
     static void PrintDeviceInfo(const SoundDeviceInterface* device)
@@ -45,7 +51,7 @@ public:
             << ", Volume " << device->GetCurrentRenderVolume()
             << " / " << device->GetCurrentCaptureVolume();
         SPD_L->info(WString2StringTruncate(wos.str()));
-		std::wcout << CurrentLocalTimeWithoutDate << wos.str() << '\n';
+		std::wcout << CurrentLocalTimeAsWideStringWithoutDate << wos.str() << '\n';
     }
 
     static std::string WString2StringTruncate(const std::wstring& str) {
@@ -58,8 +64,7 @@ public:
 
         return result;
     }
-private:
-    static std::wostream & CurrentLocalTimeWithoutDate(std::wostream & os)
+    static std::wostream & CurrentLocalTimeAsWideStringWithoutDate(std::wostream & os)
     {
         const std::wstring currentTime = ed::getLocalTimeAsWideString();
         if
@@ -69,6 +74,20 @@ private:
         )
         {
             os << currentTime.substr(currentTime.size() - beginOfTimeCountingFromTheEnd, 12) << L" ";
+        }
+        return os;
+    }
+private:
+    static std::ostream & CurrentLocalTimeWithoutDate(std::ostream & os)
+    {
+        const std::string currentTime = ed::getLocalTimeAsString();
+        if
+        (
+            constexpr int beginOfTimeCountingFromTheEnd = 15;
+            currentTime.size() >= beginOfTimeCountingFromTheEnd
+        )
+        {
+            os << currentTime.substr(currentTime.size() - beginOfTimeCountingFromTheEnd, 12) << " ";
         }
         return os;
     }
