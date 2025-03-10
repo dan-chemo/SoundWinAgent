@@ -28,10 +28,10 @@ jobs:
     - name: Setup MSBuild
       uses: microsoft/setup-msbuild@v1
 
-    # - name: Install vcpkg
-    #  run: |
-    #    git clone https://github.com/microsoft/vcpkg.git
-    #    .\vcpkg\bootstrap-vcpkg.bat
+#    - name: Install vcpkg
+#      run: |
+#        git clone https://github.com/microsoft/vcpkg.git
+#        .\vcpkg\bootstrap-vcpkg.bat
 
     - name: Add GitHub Packages NuGet source
       shell: pwsh
@@ -86,12 +86,19 @@ jobs:
     - name: Restore NuGets
       run: nuget restore SoundWinAgent.sln
 
-    - name: Restore vcpkg dependencies
-      # run: .\vcpkg\vcpkg.exe install
-      run: vcpkg install
+    # - name: Restore vcpkg dependencies
+    #  run: |
+    #    cd Projects/SoundAgentService
+        # ..\..\vcpkg\vcpkg.exe install --triplet=x64-windows
+    #    vcpkg.exe install --triplet=x64-windows
+
+    # - name: Integrate vcpkg with MSBuild
+    #  run: |
+        # .\vcpkg\vcpkg.exe integrate install
+    #    vcpkg integrate install
 
     - name: Build with MSBuild
-      run: msbuild /p:Configuration=Release /target:Rebuild -restore
+      run: msbuild /p:Configuration=Release /p:Platform=x64 /p:VcpkgEnabled=true /p:VcpkgManifestPath=Projects/SoundAgentService/vcpkg.json /target:Rebuild -restore
 
     - name: Upload entire artifacts directory
       uses: actions/upload-artifact@v4
