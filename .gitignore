@@ -274,3 +274,4 @@ Deliverables/*/[Ll]ib
 **/Properties/launchSettings.json
 
 **/vcpkg_installed/
+**/PublishDir/

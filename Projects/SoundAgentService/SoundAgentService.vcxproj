@@ -16,8 +16,9 @@
     <RootNamespace>ed</RootNamespace>
     <ConfigurationType>Application</ConfigurationType>
     <CharacterSet>Unicode</CharacterSet>
-    <!-- Enable<VcpkgEnabled>true</VcpkgEnabled> -->
-    <!-- Enable<VcpkgManifestEnabled>true</VcpkgManifestEnabled> -->
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+    <OutDir>bin\$(Platform)\$(Configuration)\</OutDir>
+    <IntDir>obj\$(Platform)\$(Configuration)\</IntDir>
   </PropertyGroup>
   <Import Project="$(MSBuildThisFileDirectory)..\..\msbuildLibCpp\Ed.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
@@ -102,8 +103,8 @@
     </Time>
     <FileUpdate Files="$(ReleaseNotesTargetPathName)" Regex="\$date\$" ReplacementText="$(BuildDate)" />
     <Copy DestinationFolder="$(PublishFullDirectory)" SourceFiles="$(ArtifactsDirectory)$(ReleaseNotesFileName)" />
-    <Copy DestinationFolder="$(PublishFullDirectory)" SourceFiles="$(OutputPath)\SoundAgentDll.dll" />
-    <Copy DestinationFolder="$(PublishFullDirectory)" SourceFiles="$(OutputPath)\SoundAgentService.exe" />
+    <Copy DestinationFolder="$(PublishFullDirectory)" SourceFiles="$(OutputPath)\*.dll" />
+    <Copy DestinationFolder="$(PublishFullDirectory)" SourceFiles="$(OutputPath)\*.exe" />
     <ZipDirectory Overwrite="true" SourceDirectory="$(PublishFullDirectory)" DestinationFile="$(ZipFileName)" />
     <RemoveDir Directories="$(PublishFullDirectory)" />
   </Target>

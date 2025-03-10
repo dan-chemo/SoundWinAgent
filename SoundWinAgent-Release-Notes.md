@@ -11,6 +11,7 @@ Released on $date$
 ~~~
 
 ## Change
+- Sound Agent Service added
 - README added
 --------
 

@@ -103,7 +103,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      - name: Download DEB package
+      - name: Download artifacts
         uses: actions/download-artifact@v4
         with:
           name: Artifacts
@@ -113,4 +113,5 @@ jobs:
         run: |
           VERS=${{ needs.build.outputs.version }}
           echo "${{ secrets.GITHUB_TOKEN }}" | gh auth login --with-token
-          gh release create "$VERS" build/*.* --title "SoundWinAgent $VERS" --notes "Release of Sound Windows Agent $VERS"
+          gh release create "$VERS" --title "SoundWinAgent $VERS" --notes "Release of Sound Windows Agent $VERS"
+          gh release upload "$VERS" build/*.*
