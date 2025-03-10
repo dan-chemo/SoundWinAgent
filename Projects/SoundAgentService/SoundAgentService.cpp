@@ -1,0 +1,123 @@
+#include "stdafx.h"
+
+#include <SpdLogger.h>
+
+#include <filesystem>
+#include <iomanip>
+#include <memory>
+#include <tchar.h>
+
+#include <Poco/Util/ServerApplication.h>
+#include <Poco/UnicodeConverter.h>
+#include <vector>
+
+#include "../SoundAgentLib/CoInitRaiiHelper.h"
+#include "../SoundAgentDll/SoundAgentInterface.h"
+#include "../SoundAgentLib/DefToString.h"
+
+class Observer final : public AudioDeviceCollectionObserverInterface {
+public:
+    explicit Observer(AudioDeviceCollectionInterface& collection)
+        : collection_(collection)
+    {
+        if (std::filesystem::path logFile;
+            ed::utility::AppPath::GetAndValidateLogFileInProgramData(
+                logFile, RESOURCE_FILENAME_ATTRIBUTE)
+            )
+        {
+            ed::model::Logger::Inst().SetPathName(logFile);
+        }
+    }
+
+    DISALLOW_COPY_MOVE(Observer);
+    ~Observer() override = default;
+
+public:
+    void OnCollectionChanged(AudioDeviceCollectionEvent event, const std::wstring& devicePnpId) override
+    {
+    }
+
+    void OnTrace(const std::wstring& line) override
+    {
+        std::string result; result.reserve(line.size());
+        std::ranges::for_each(line, [&result](const auto p)
+            {
+                result += static_cast<char>(p);
+            });
+
+        SPD_L->info(result);
+    }
+
+    void OnTraceDebug(const std::wstring& line) override
+    {
+        OnTrace(line);
+    }
+
+private:
+    AudioDeviceCollectionInterface& collection_;
+};
+
+
+
+class AudioDeviceService final : public Poco::Util::ServerApplication {
+protected:
+    int main(const std::vector<std::string>& args) override {
+        try {
+            // Service initialization
+            logger().information("Starting Audio Device Service");
+
+            const auto coll(SoundAgent::CreateDeviceCollection(L"", true));
+            Observer o(*coll);
+            coll->Subscribe(o);
+
+            waitForTerminationRequest();
+
+            coll->Unsubscribe(o);
+
+            logger().information("Stopping service");
+            return Application::EXIT_OK;
+        }
+        catch (const Poco::Exception& ex) {
+            logger().log(ex);
+            return Application::EXIT_SOFTWARE;
+        }
+    }
+
+    void initialize(Application& self) override {
+        loadConfiguration();  // Load service config from XML if needed
+        ServerApplication::initialize(self);
+
+        // Windows service registration
+        setUnixOptions(false);  // Force Windows service behavior
+    }
+};
+
+
+
+
+int _tmain(int argc, _TCHAR * argv[])
+{
+    _CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
+    _CrtSetReportMode(_CRT_WARN, _CRTDBG_MODE_FILE);
+    _CrtSetReportMode(_CRT_ERROR, _CRTDBG_MODE_FILE);
+    _CrtSetReportFile(_CRT_WARN, _CRTDBG_FILE_STDOUT);
+    _CrtSetReportFile(_CRT_ERROR, _CRTDBG_FILE_STDERR);
+
+    ed::CoInitRaiiHelper coInitHelper;
+
+    std::vector<std::string> args;
+    std::vector<char*> argPtrs;
+
+    for (int i = 0; i < argc; ++i) {
+        std::string utf8Arg;
+        Poco::UnicodeConverter::toUTF16(argv[i], utf8Arg); // MSBuild uses UTF-16
+        args.push_back(utf8Arg);
+    }
+
+    for (auto& arg : args) {
+        argPtrs.push_back(arg.data());
+    }
+
+    AudioDeviceService app;
+    return app.run(static_cast<int>(argPtrs.size()), argPtrs.data());
+}

@@ -272,3 +272,5 @@ Deliverables/*/[Ll]ib
 !.dirkeeper
 *.copy
 **/Properties/launchSettings.json
+
+**/vcpkg_installed/
