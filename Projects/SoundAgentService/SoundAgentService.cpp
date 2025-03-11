@@ -46,7 +46,7 @@ public:
 
 		if (event == AudioDeviceCollectionEvent::Discovered)
         {
-            AudioDeviceApiClient apiClient(L"http://localhost:5027/api/AudioDevices");
+            const AudioDeviceApiClient apiClient(L"http://localhost:5027/api/AudioDevices");
 
             // Example device data
             const std::wstring pnpId = foundDevice->GetPnpId();
@@ -94,8 +94,8 @@ class AudioDeviceService final : public Poco::Util::ServerApplication {
 protected:
     int main(const std::vector<std::string>& args) override {
         try {
-            // Service initialization
-            SPD_L->info("Starting Audio Device Service");
+            const auto msgStart = "Starting Sound Agent Service..."; std::cout << FormattedOutput::CurrentLocalTimeWithoutDate << msgStart << '\n';
+            SPD_L->info(msgStart);
 
             const auto coll(SoundAgent::CreateDeviceCollection(L"", true));
             Observer o(*coll);
@@ -105,7 +105,8 @@ protected:
 
             coll->Unsubscribe(o);
 
-            SPD_L->info("Stopping service");
+            const auto msgStop = "Stopping service..."; std::cout << FormattedOutput::CurrentLocalTimeWithoutDate << msgStop << '\n';
+            SPD_L->info(msgStop);
             return Application::EXIT_OK;
         }
         catch (const Poco::Exception& ex) {
@@ -118,13 +119,15 @@ protected:
         loadConfiguration();  // Load service config from XML if needed
         ServerApplication::initialize(self);
 
+        // Set service name (if not provided in config)
+        if (!config().hasProperty("application.name")) {
+            config().setString("application.name", "SoundAgentService");
+        }
+
         // Windows service registration
         setUnixOptions(false);  // Force Windows service behavior
     }
 };
-
-
-
 
 int _tmain(int argc, _TCHAR * argv[])
 {

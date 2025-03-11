@@ -47,6 +47,7 @@ public:
         request.set_body(jsonPayload);
         request.headers().set_content_type(U("application/json"));
 
+        SPD_L->info("Sending request...");
         // Send request and handle response
         const pplx::task<http_response> responseTask = client.request(request);
         // ReSharper disable once CppExpressionWithoutSideEffects
@@ -55,17 +56,16 @@ public:
                 response.status_code() == status_codes::OK ||
                 response.status_code() == status_codes::NoContent)
             {
-                const auto msg = "Device data posted successfully!";
-                std::cout << FormattedOutput::CurrentLocalTimeWithoutDate << msg << '\n';
+                const auto msg = "Device data posted successfully!"; std::cout << FormattedOutput::CurrentLocalTimeWithoutDate << msg << '\n';
                 SPD_L->info(msg);
             }
             else {
                 const auto statusCode = response.status_code();
-                const auto msg = "Failed to post device data. Status code: " + std::to_string(statusCode);
-                std::cout << FormattedOutput::CurrentLocalTimeWithoutDate << msg << '\n';
+                const auto msg = "Failed to post device data. Status code: " + std::to_string(statusCode); std::cout << FormattedOutput::CurrentLocalTimeWithoutDate << msg << '\n';
                 SPD_L->error(msg);
             }
             }).wait(); // Blocking call for simplicity
+        SPD_L->info("...Request sent.");
     }
 
 private:
