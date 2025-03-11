@@ -48,24 +48,40 @@ public:
         request.headers().set_content_type(U("application/json"));
 
         SPD_L->info("Sending request...");
-        // Send request and handle response
-        const pplx::task<http_response> responseTask = client.request(request);
-        // ReSharper disable once CppExpressionWithoutSideEffects
-        responseTask.then([](const http_response& response) {
-            if (response.status_code() == status_codes::Created ||
-                response.status_code() == status_codes::OK ||
-                response.status_code() == status_codes::NoContent)
-            {
-                const auto msg = "Device data posted successfully!"; std::cout << FormattedOutput::CurrentLocalTimeWithoutDate << msg << '\n';
-                SPD_L->info(msg);
-            }
-            else {
-                const auto statusCode = response.status_code();
-                const auto msg = "Failed to post device data. Status code: " + std::to_string(statusCode); std::cout << FormattedOutput::CurrentLocalTimeWithoutDate << msg << '\n';
-                SPD_L->error(msg);
-            }
-            }).wait(); // Blocking call for simplicity
-        SPD_L->info("...Request sent.");
+        try {
+            // Send request and handle response
+            const pplx::task<http_response> responseTask = client.request(request);
+            // ReSharper disable once CppExpressionWithoutSideEffects
+            responseTask.then([](const http_response& response) {
+                if (response.status_code() == status_codes::Created ||
+                    response.status_code() == status_codes::OK ||
+                    response.status_code() == status_codes::NoContent)
+                {
+                    const auto msg = "Device data posted successfully!"; std::cout << FormattedOutput::CurrentLocalTimeWithoutDate << msg << '\n';
+                    SPD_L->info(msg);
+                }
+                else {
+                    const auto statusCode = response.status_code(); const auto msg = "Failed to post device data. Status code: " + std::to_string(statusCode); std::cout << FormattedOutput::CurrentLocalTimeWithoutDate << msg << '\n';
+                    SPD_L->error(msg);
+                }
+                }).wait(); // Blocking call for simplicity
+        }
+        catch (const http_exception& ex) {
+            // HTTP-specific exceptions (connection issues, malformed requests, etc.)
+            const auto msg = "HTTP exception occurred: " + std::string(ex.what()); std::cout << FormattedOutput::CurrentLocalTimeWithoutDate << msg << '\n';
+            SPD_L->error(msg);
+        }
+        catch (const std::exception& ex) {
+            // Other standard exceptions
+            const auto msg = "Exception occurred while sending request: " + std::string(ex.what()); std::cout << FormattedOutput::CurrentLocalTimeWithoutDate << msg << '\n';
+            SPD_L->error(msg);
+        }
+        catch (...) {
+            // Unknown exceptions
+            const auto msg = "Unknown exception occurred while sending request"; std::cout << FormattedOutput::CurrentLocalTimeWithoutDate << msg << '\n';
+            SPD_L->error(msg);
+        }
+        SPD_L->info("...Request handled.");
     }
 
 private:
