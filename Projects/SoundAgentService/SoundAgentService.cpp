@@ -15,13 +15,10 @@
 #include "FormattedOutput.h"
 #include "../SoundAgentLib/CoInitRaiiHelper.h"
 #include "../SoundAgentDll/SoundAgentInterface.h"
-#include "../SoundAgentLib/DefToString.h"
-
-#include "FormattedOutput.h"
 
 class Observer final : public AudioDeviceCollectionObserverInterface {
 public:
-    explicit Observer(AudioDeviceCollectionInterface& collection)
+    explicit Observer(AudioDeviceCollectionInterface & collection)
         : collection_(collection)
     {
     }
@@ -30,32 +27,29 @@ public:
     ~Observer() override = default;
 
 public:
+    void PostAndPrintCollection() const
+    {
+        const std::string message1("Posting device collection:..."); std::cout << FormattedOutput::CurrentLocalTimeWithoutDate << message1 << '\n';
+        SPD_L->info(message1);
+        for (size_t i = 0; i < collection_.GetSize(); ++i)
+        {
+            const std::unique_ptr deviceSmartPtr(collection_.CreateItem(i));
+            FormattedOutput::PrintDeviceInfo(deviceSmartPtr.get());
+            AudioDeviceApiClient(L"http://localhost:5027/api/AudioDevices").PostDeviceToApi(deviceSmartPtr.get());
+        }
+        const std::string message2("...Posting device collection finished."); std::cout << FormattedOutput::CurrentLocalTimeWithoutDate << message2 << '\n';
+        SPD_L->info(message2);
+    }
+
     void OnCollectionChanged(AudioDeviceCollectionEvent event, const std::wstring& devicePnpId) override
 	{
         FormattedOutput::PrintEvent(event, devicePnpId);
-        FormattedOutput::PrintCollection(collection_);
 
-        const std::shared_ptr foundDevice = FindDevice(devicePnpId);
-		if (!foundDevice)
-		{
-			const std::wstring line = L"Device with PnP id " + devicePnpId + L" not found in the collection.";
-            SPD_L->error(FormattedOutput::WString2StringTruncate(line));
-            std::wcout << FormattedOutput::CurrentLocalTimeAsWideStringWithoutDate << line << '\n';
-            return;
-		}
-
-		if (event == AudioDeviceCollectionEvent::Discovered)
+        if (event == AudioDeviceCollectionEvent::Discovered
+            || event == AudioDeviceCollectionEvent::VolumeChanged
+        )
         {
-            const AudioDeviceApiClient apiClient(L"http://localhost:5027/api/AudioDevices");
-
-            // Example device data
-            const std::wstring pnpId = foundDevice->GetPnpId();
-            const std::wstring name = foundDevice->GetName();
-            const int volume = foundDevice->GetCurrentRenderVolume();
-            const std::wstring hostName = foundDevice->GetName();
-
-            // Post device data to the API
-            apiClient.PostDeviceToApi(pnpId, name, volume, hostName);
+			PostAndPrintCollection();
         }
     }
 
@@ -69,21 +63,6 @@ public:
         OnTrace(line);
     }
 
-private:
-    [[nodiscard]] std::shared_ptr<SoundDeviceInterface> FindDevice(const std::wstring & pnpId) const
-    {
-        const size_t deviceCount = collection_.GetSize();
-        for (size_t i = 0; i < deviceCount; ++i)
-        {
-            if (std::unique_ptr device(collection_.CreateItem(i))
-              ; device && device->GetPnpId() == pnpId
-            )
-            {
-                return std::shared_ptr<SoundDeviceInterface>(device.release());
-            }
-        }
-        return nullptr;
-    }
 private:
     AudioDeviceCollectionInterface& collection_;
 };
@@ -101,13 +80,16 @@ protected:
             Observer o(*coll);
             coll->Subscribe(o);
 
+            coll->ResetContent();
+            o.PostAndPrintCollection();
+
             waitForTerminationRequest();
 
             coll->Unsubscribe(o);
 
             const auto msgStop = "Stopping service..."; std::cout << FormattedOutput::CurrentLocalTimeWithoutDate << msgStop << '\n';
             SPD_L->info(msgStop);
-            return Application::EXIT_OK;
+            return EXIT_OK;
         }
         catch (const Poco::Exception& ex) {
 			SPD_L-> error(ex.displayText());

@@ -26,21 +26,6 @@ public:
     }
 
 
-    static void PrintCollection(const AudioDeviceCollectionInterface& collection)
-    {
-        const std::string message1("Current device collection:...");
-        std::cout << CurrentLocalTimeWithoutDate << message1 << '\n';
-		SPD_L->info(message1);
-        for (size_t i = 0; i < collection.GetSize(); ++i)
-        {
-            const std::unique_ptr deviceSmartPtr(collection.CreateItem(i));
-            PrintDeviceInfo(deviceSmartPtr.get());
-        }
-        const std::string message2("...End of current device collection.");
-        std::cout << CurrentLocalTimeWithoutDate << message2 << '\n';
-        SPD_L->info(message2);
-    }
-
     static void PrintDeviceInfo(const SoundDeviceInterface* device)
     {
         const auto idString = device->GetPnpId();
@@ -64,6 +49,7 @@ public:
 
         return result;
     }
+
     static std::wostream & CurrentLocalTimeAsWideStringWithoutDate(std::wostream & os)
     {
         const std::wstring currentTime = ed::getLocalTimeAsWideString();
