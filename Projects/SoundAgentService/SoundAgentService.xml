@@ -2,5 +2,8 @@
 <config>
     <custom>
         <apiBaseUrl>http://localhost:5027/api/AudioDevices</apiBaseUrl>
+<!--
+        <apiBaseUrl>https://studious-bassoon-7vp9wvpw7rxjf4wg-5027.app.github.dev/api/AudioDevices</apiBaseUrl>
+-->
     </custom>
 </config>

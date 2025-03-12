@@ -1,4 +1,5 @@
-﻿#pragma once
+﻿// ReSharper disable CppExpressionWithoutSideEffects
+#pragma once
 
 #include <cpprest/http_client.h>
 #include <cpprest/json.h>
@@ -65,7 +66,6 @@ public:
         try {
             // Send request and handle response
             const pplx::task<http_response> responseTask = client.request(request);
-            // ReSharper disable once CppExpressionWithoutSideEffects
             responseTask.then([pnpIdUtf8](const http_response& response) {
                 if (response.status_code() == status_codes::Created ||
                     response.status_code() == status_codes::OK ||
@@ -75,7 +75,8 @@ public:
                     std::cout << FormattedOutput::CurrentLocalTimeWithoutDate << msg << '\n';
                     SPD_L->info(msg);
                 }
-                else {
+				else
+                {
                     const auto statusCode = response.status_code();
                     const auto msg = "Failed to post device data for: " + pnpIdUtf8 +
                                     " - Status code: " + std::to_string(statusCode); 
