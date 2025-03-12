@@ -62,6 +62,7 @@ public void $Name$()&#xD;
 	<s:Boolean x:Key="/Default/UserDictionary/Words/=COININ/@EntryIndexedValue">True</s:Boolean>
 	<s:Boolean x:Key="/Default/UserDictionary/Words/=COPYCAPS/@EntryIndexedValue">True</s:Boolean>
 	<s:Boolean x:Key="/Default/UserDictionary/Words/=cppcoreguidelines/@EntryIndexedValue">True</s:Boolean>
+	<s:Boolean x:Key="/Default/UserDictionary/Words/=cpprestsdk/@EntryIndexedValue">True</s:Boolean>
 	<s:Boolean x:Key="/Default/UserDictionary/Words/=CRTDBG/@EntryIndexedValue">True</s:Boolean>
 	<s:Boolean x:Key="/Default/UserDictionary/Words/=CTORS/@EntryIndexedValue">True</s:Boolean>
 	
@@ -83,5 +84,6 @@ public void $Name$()&#xD;
 	<s:Boolean x:Key="/Default/UserDictionary/Words/=uild/@EntryIndexedValue">True</s:Boolean>
 	<s:Boolean x:Key="/Default/UserDictionary/Words/=Uninitializes/@EntryIndexedValue">True</s:Boolean>
 	<s:Boolean x:Key="/Default/UserDictionary/Words/=wfsresult/@EntryIndexedValue">True</s:Boolean>
+	<s:Boolean x:Key="/Default/UserDictionary/Words/=wstring/@EntryIndexedValue">True</s:Boolean>
 	<s:Boolean x:Key="/Default/UserDictionary/Words/=_0020a_0020wfsres/@EntryIndexedValue">True</s:Boolean>
 </wpf:ResourceDictionary>

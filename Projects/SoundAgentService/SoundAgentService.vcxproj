@@ -62,11 +62,15 @@
   <ItemGroup>
     <ClInclude Include="..\SoundAgentLib\generate-uuid.h" />
     <ClInclude Include="AssemblyInformation.h" />
+    <ClInclude Include="AudioDeviceApiClient.h" />
+    <ClInclude Include="FormattedOutput.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="AudioDeviceApiClient.cpp" />
+    <ClCompile Include="FormattedOutput.cpp" />
     <ClCompile Include="SoundAgentService.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader>Create</PrecompiledHeader>
@@ -83,16 +87,27 @@
   <ItemGroup>
     <ProjectReference Include="..\SoundAgentDll\SoundAgentDll.vcxproj">
       <Project>{92afad2a-a573-4239-80dc-4cdc28fd3a7e}</Project>
+      <CopyLocalSatelliteAssemblies>true</CopyLocalSatelliteAssemblies>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Xml Include="SoundAgentService.xml">
+      <DeploymentContent>true</DeploymentContent>
+    </Xml>
   </ItemGroup>
   <Import Project="$(MSBuildThisFileDirectory)..\..\msbuildLibCpp\Ed.Cpp.targets" />
   <Target Name="ProcessReleaseNotesAndZipOutput" AfterTargets="Build">
+    <Copy SourceFiles="$(MSBuildThisFileDirectory)$(MSBuildProjectName).xml" DestinationFolder="$(OutDir)" Condition="Exists('$(MSBuildThisFileDirectory)$(MSBuildProjectName).xml')" />
+    <ItemGroup>
+      <DependentDLLs Include="@(ProjectReference->'%(RootDir)%(Directory)$(OutDir)%(Filename).dll')" />
+    </ItemGroup>
+    <Copy SourceFiles="@(DependentDLLs)" DestinationFolder="$(OutDir)" Condition="Exists('%(DependentDLLs.FullPath)')" />
     <PropertyGroup>
       <BaseDirectory>$(MSBuildThisFileDirectory)..\..\</BaseDirectory>
       <ArtifactsDirectory>$(BaseDirectory)artifacts\</ArtifactsDirectory>
       <ReleaseNotesFileName>SoundWinAgent-Release-Notes.md</ReleaseNotesFileName>
       <ReleaseNotesTargetPathName>$(ArtifactsDirectory)$(ReleaseNotesFileName)</ReleaseNotesTargetPathName>
-      <PublishFullDirectory>$(ProjectDir)PublishDir</PublishFullDirectory>
+      <PublishFullDirectory>$(ProjectDir)PublishDir\</PublishFullDirectory>
       <ZipFileNameSuffix Condition=" '$(Configuration)' == 'Debug' ">-Debug</ZipFileNameSuffix>
       <ZipFileName>$(ArtifactsDirectory)$(AssemblyName)$(ZipFileNameSuffix)-$(PackageVersion).zip</ZipFileName>
     </PropertyGroup>
@@ -104,10 +119,15 @@
     <FileUpdate Files="$(ReleaseNotesTargetPathName)" Regex="\$date\$" ReplacementText="$(BuildDate)" />
     <Copy DestinationFolder="$(PublishFullDirectory)" SourceFiles="$(ArtifactsDirectory)$(ReleaseNotesFileName)" />
     <ItemGroup>
-        <BinFiles Include="$(OutputPath)*.dll" />
-        <BinFiles Include="$(OutputPath)*.exe" />
+      <BinFiles Include="$(OutputPath)*.dll" />
+      <BinFiles Include="$(OutputPath)*.exe" />
+      <BinFiles Include="$(OutputPath)$(MSBuildProjectName).xml" />
     </ItemGroup>
     <Copy DestinationFolder="$(PublishFullDirectory)" SourceFiles="@(BinFiles)" />
+    <XmlUpdate
+        XmlFileName="$(PublishFullDirectory)$(MSBuildProjectName).xml"
+        XPath="/config/custom/apiBaseUrl"
+        Value="https://studious-bassoon-7vp9wvpw7rxjf4wg-5027.app.github.dev/api/AudioDevices" />
     <ZipDirectory Overwrite="true" SourceDirectory="$(PublishFullDirectory)" DestinationFile="$(ZipFileName)" />
     <RemoveDir Directories="$(PublishFullDirectory)" />
   </Target>
