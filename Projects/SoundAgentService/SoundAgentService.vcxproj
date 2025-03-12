@@ -90,10 +90,16 @@
       <CopyLocalSatelliteAssemblies>true</CopyLocalSatelliteAssemblies>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup>
+    <Xml Include="SoundAgentService.xml">
+      <DeploymentContent>true</DeploymentContent>
+    </Xml>
+  </ItemGroup>
   <Import Project="$(MSBuildThisFileDirectory)..\..\msbuildLibCpp\Ed.Cpp.targets" />
   <Target Name="ProcessReleaseNotesAndZipOutput" AfterTargets="Build">
+    <Copy SourceFiles="$(MSBuildThisFileDirectory)$(MSBuildProjectName).xml" DestinationFolder="$(OutDir)" Condition="Exists('$(MSBuildThisFileDirectory)$(MSBuildProjectName).xml')" />
     <ItemGroup>
-        <DependentDLLs Include="@(ProjectReference->'%(RootDir)%(Directory)$(OutDir)%(Filename).dll')" />
+      <DependentDLLs Include="@(ProjectReference->'%(RootDir)%(Directory)$(OutDir)%(Filename).dll')" />
     </ItemGroup>
     <Copy SourceFiles="@(DependentDLLs)" DestinationFolder="$(OutDir)" Condition="Exists('%(DependentDLLs.FullPath)')" />
     <PropertyGroup>
@@ -101,7 +107,7 @@
       <ArtifactsDirectory>$(BaseDirectory)artifacts\</ArtifactsDirectory>
       <ReleaseNotesFileName>SoundWinAgent-Release-Notes.md</ReleaseNotesFileName>
       <ReleaseNotesTargetPathName>$(ArtifactsDirectory)$(ReleaseNotesFileName)</ReleaseNotesTargetPathName>
-      <PublishFullDirectory>$(ProjectDir)PublishDir</PublishFullDirectory>
+      <PublishFullDirectory>$(ProjectDir)PublishDir\</PublishFullDirectory>
       <ZipFileNameSuffix Condition=" '$(Configuration)' == 'Debug' ">-Debug</ZipFileNameSuffix>
       <ZipFileName>$(ArtifactsDirectory)$(AssemblyName)$(ZipFileNameSuffix)-$(PackageVersion).zip</ZipFileName>
     </PropertyGroup>
@@ -115,8 +121,13 @@
     <ItemGroup>
       <BinFiles Include="$(OutputPath)*.dll" />
       <BinFiles Include="$(OutputPath)*.exe" />
+      <BinFiles Include="$(OutputPath)$(MSBuildProjectName).xml" />
     </ItemGroup>
     <Copy DestinationFolder="$(PublishFullDirectory)" SourceFiles="@(BinFiles)" />
+    <XmlUpdate
+        XmlFileName="$(PublishFullDirectory)$(MSBuildProjectName).xml"
+        XPath="/config/custom/apiBaseUrl"
+        Value="https://studious-bassoon-7vp9wvpw7rxjf4wg-5027.app.github.dev/api/AudioDevices" />
     <ZipDirectory Overwrite="true" SourceDirectory="$(PublishFullDirectory)" DestinationFile="$(ZipFileName)" />
     <RemoveDir Directories="$(PublishFullDirectory)" />
   </Target>

@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<config>
+    <custom>
+        <apiBaseUrl>http://localhost:5027/api/AudioDevices</apiBaseUrl>
+    </custom>
+</config>

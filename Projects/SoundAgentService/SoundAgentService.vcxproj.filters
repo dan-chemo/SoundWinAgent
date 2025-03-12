@@ -55,4 +55,7 @@
   <ItemGroup>
     <ResourceCompile Include="SoundAgentService.rc" />
   </ItemGroup>
+  <ItemGroup>
+    <Xml Include="SoundAgentService.xml" />
+  </ItemGroup>
 </Project>

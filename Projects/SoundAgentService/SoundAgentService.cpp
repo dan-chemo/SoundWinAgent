@@ -18,8 +18,9 @@
 
 class Observer final : public AudioDeviceCollectionObserverInterface {
 public:
-    explicit Observer(AudioDeviceCollectionInterface & collection)
+    explicit Observer(AudioDeviceCollectionInterface & collection, std::wstring apiBaseUrl)
         : collection_(collection)
+        , apiBaseUrl_(std::move(apiBaseUrl))
     {
     }
 
@@ -35,7 +36,7 @@ public:
         {
             const std::unique_ptr deviceSmartPtr(collection_.CreateItem(i));
             FormattedOutput::PrintDeviceInfo(deviceSmartPtr.get());
-            AudioDeviceApiClient(L"http://localhost:5027/api/AudioDevices").PostDeviceToApi(deviceSmartPtr.get());
+            AudioDeviceApiClient(apiBaseUrl_).PostDeviceToApi(deviceSmartPtr.get());
         }
         const std::string message2("...Posting device collection finished."); std::cout << FormattedOutput::CurrentLocalTimeWithoutDate << message2 << '\n';
         SPD_L->info(message2);
@@ -65,6 +66,7 @@ public:
 
 private:
     AudioDeviceCollectionInterface& collection_;
+    std::wstring apiBaseUrl_;
 };
 
 
@@ -77,7 +79,7 @@ protected:
             SPD_L->info(msgStart);
 
             const auto coll(SoundAgent::CreateDeviceCollection(L"", true));
-            Observer o(*coll);
+            Observer o(*coll, apiBaseUrl_);
             coll->Subscribe(o);
 
             coll->ResetContent();
@@ -98,17 +100,22 @@ protected:
     }
 
     void initialize(Application& self) override {
-        loadConfiguration();  // Load service config from XML if needed
+        loadConfiguration();
         ServerApplication::initialize(self);
 
-        // Set service name (if not provided in config)
-        if (!config().hasProperty("application.name")) {
-            config().setString("application.name", "SoundAgentService");
+        if (config().hasProperty(ApiBaseUrlPropertyKey))
+        {
+            const auto narrowVal = config().getString(ApiBaseUrlPropertyKey);
+            apiBaseUrl_ = std::wstring(narrowVal.length(), L' ');
+            std::ranges::copy(narrowVal, apiBaseUrl_.begin());
         }
 
         // Windows service registration
         setUnixOptions(false);  // Force Windows service behavior
     }
+private:
+	std::wstring apiBaseUrl_ = L"http://localhost:5027/api/AudioDevices";
+    static constexpr auto ApiBaseUrlPropertyKey = "custom.apiBaseUrl";
 };
 
 int _tmain(int argc, _TCHAR * argv[])
