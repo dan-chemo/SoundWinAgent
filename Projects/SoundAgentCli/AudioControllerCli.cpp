@@ -29,9 +29,9 @@ namespace
 }
 
 
-class Observer final : public AudioDeviceCollectionObserverInterface {
+class ServiceObserver final : public AudioDeviceCollectionObserverInterface {
 public:
-    explicit Observer(AudioDeviceCollectionInterface & collection)
+    explicit ServiceObserver(AudioDeviceCollectionInterface & collection)
         : collection_(collection)
     {
         if (std::filesystem::path logFile;
@@ -43,8 +43,8 @@ public:
         }
     }
 
-    DISALLOW_COPY_MOVE(Observer);
-    ~Observer() override = default;
+    DISALLOW_COPY_MOVE(ServiceObserver);
+    ~ServiceObserver() override = default;
 
 public:
     static void PrintDeviceInfo(const SoundDeviceInterface* device, size_t i)
@@ -151,7 +151,7 @@ int _tmain(int argc, _TCHAR * argv[])
 
     ed::CoInitRaiiHelper coInitHelper;
     const auto coll(SoundAgent::CreateDeviceCollection(filter, bothHeadsetAndMicro));
-    Observer o(*coll);
+    ServiceObserver o(*coll);
     coll->Subscribe(o);
 
     bool continueLoop = true;

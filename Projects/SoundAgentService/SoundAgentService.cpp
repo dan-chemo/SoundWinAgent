@@ -13,73 +13,21 @@
 
 #include "AudioDeviceApiClient.h"
 #include "FormattedOutput.h"
+#include "ServiceObserver.h"
+
 #include "../SoundAgentLib/CoInitRaiiHelper.h"
 #include "../SoundAgentDll/SoundAgentInterface.h"
-
-class Observer final : public AudioDeviceCollectionObserverInterface {
-public:
-    explicit Observer(AudioDeviceCollectionInterface & collection, std::wstring apiBaseUrl)
-        : collection_(collection)
-        , apiBaseUrl_(std::move(apiBaseUrl))
-    {
-    }
-
-    DISALLOW_COPY_MOVE(Observer);
-    ~Observer() override = default;
-
-public:
-    void PostAndPrintCollection() const
-    {
-        const std::string message1("Posting device collection:..."); std::cout << FormattedOutput::CurrentLocalTimeWithoutDate << message1 << '\n';
-        SPD_L->info(message1);
-        for (size_t i = 0; i < collection_.GetSize(); ++i)
-        {
-            const std::unique_ptr deviceSmartPtr(collection_.CreateItem(i));
-            FormattedOutput::PrintDeviceInfo(deviceSmartPtr.get());
-            AudioDeviceApiClient(apiBaseUrl_).PostDeviceToApi(deviceSmartPtr.get());
-        }
-        const std::string message2("...Posting device collection finished."); std::cout << FormattedOutput::CurrentLocalTimeWithoutDate << message2 << '\n';
-        SPD_L->info(message2);
-    }
-
-    void OnCollectionChanged(AudioDeviceCollectionEvent event, const std::wstring& devicePnpId) override
-	{
-        FormattedOutput::PrintEvent(event, devicePnpId);
-
-        if (event == AudioDeviceCollectionEvent::Discovered
-            || event == AudioDeviceCollectionEvent::VolumeChanged
-        )
-        {
-			PostAndPrintCollection();
-        }
-    }
-
-    void OnTrace(const std::wstring& line) override
-    {
-        SPD_L->info(FormattedOutput::WString2StringTruncate(line));
-    }
-
-    void OnTraceDebug(const std::wstring& line) override
-    {
-        OnTrace(line);
-    }
-
-private:
-    AudioDeviceCollectionInterface& collection_;
-    std::wstring apiBaseUrl_;
-};
-
 
 
 class AudioDeviceService final : public Poco::Util::ServerApplication {
 protected:
     int main(const std::vector<std::string>& args) override {
         try {
-            const auto msgStart = "Starting Sound Agent Service..."; std::cout << FormattedOutput::CurrentLocalTimeWithoutDate << msgStart << '\n';
+            const auto msgStart = "Starting Sound Agent..."; std::cout << FormattedOutput::CurrentLocalTimeWithoutDate << msgStart << '\n';
             SPD_L->info(msgStart);
 
             const auto coll(SoundAgent::CreateDeviceCollection(L"", true));
-            Observer o(*coll, apiBaseUrl_);
+            ServiceObserver o(*coll, apiBaseUrl_);
             coll->Subscribe(o);
 
             coll->ResetContent();
@@ -89,7 +37,7 @@ protected:
 
             coll->Unsubscribe(o);
 
-            const auto msgStop = "Stopping service..."; std::cout << FormattedOutput::CurrentLocalTimeWithoutDate << msgStop << '\n';
+            const auto msgStop = "Stopping..."; std::cout << FormattedOutput::CurrentLocalTimeWithoutDate << msgStop << '\n';
             SPD_L->info(msgStop);
             return EXIT_OK;
         }
@@ -110,11 +58,11 @@ protected:
             std::ranges::copy(narrowVal, apiBaseUrl_.begin());
         }
 
-        // Windows service registration
         setUnixOptions(false);  // Force Windows service behavior
     }
 private:
 	std::wstring apiBaseUrl_ = L"http://localhost:5027/api/AudioDevices";
+    // bool isService_ = config().getBool("application.runAsService", false);
     static constexpr auto ApiBaseUrlPropertyKey = "custom.apiBaseUrl";
 };
 

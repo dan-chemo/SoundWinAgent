@@ -65,12 +65,14 @@
     <ClInclude Include="AudioDeviceApiClient.h" />
     <ClInclude Include="FormattedOutput.h" />
     <ClInclude Include="resource.h" />
+    <ClInclude Include="ServiceObserver.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="AudioDeviceApiClient.cpp" />
     <ClCompile Include="FormattedOutput.cpp" />
+    <ClCompile Include="ServiceObserver.cpp" />
     <ClCompile Include="SoundAgentService.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader>Create</PrecompiledHeader>
@@ -124,10 +126,7 @@
       <BinFiles Include="$(OutputPath)$(MSBuildProjectName).xml" />
     </ItemGroup>
     <Copy DestinationFolder="$(PublishFullDirectory)" SourceFiles="@(BinFiles)" />
-    <XmlUpdate
-        XmlFileName="$(PublishFullDirectory)$(MSBuildProjectName).xml"
-        XPath="/config/custom/apiBaseUrl"
-        Value="https://studious-bassoon-7vp9wvpw7rxjf4wg-5027.app.github.dev/api/AudioDevices" />
+    <XmlUpdate XmlFileName="$(PublishFullDirectory)$(MSBuildProjectName).xml" XPath="/config/custom/apiBaseUrl" Value="https://studious-bassoon-7vp9wvpw7rxjf4wg-5027.app.github.dev/api/AudioDevices" />
     <ZipDirectory Overwrite="true" SourceDirectory="$(PublishFullDirectory)" DestinationFile="$(ZipFileName)" />
     <RemoveDir Directories="$(PublishFullDirectory)" />
   </Target>
