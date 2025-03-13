@@ -72,30 +72,28 @@ public:
                     response.status_code() == status_codes::NoContent)
                 {
                     const auto msg = "Device data posted successfully for: " + pnpIdUtf8;
-                    std::cout << FormattedOutput::CurrentLocalTimeWithoutDate << msg << '\n';
-                    SPD_L->info(msg);
+                    FormattedOutput::LogAndPrint(msg);
                 }
 				else
                 {
                     const auto statusCode = response.status_code();
                     const auto msg = "Failed to post device data for: " + pnpIdUtf8 +
                                     " - Status code: " + std::to_string(statusCode); 
-                    std::cout << FormattedOutput::CurrentLocalTimeWithoutDate << msg << '\n';
-                    SPD_L->error(msg);
+                    FormattedOutput::LogAndPrint(msg);
                 }
             }).wait(); // Blocking call for simplicity
         }
         catch (const http_exception& ex) {
             const auto msg = "HTTP exception for device " + pnpIdUtf8 + ": " + std::string(ex.what()); std::cout << FormattedOutput::CurrentLocalTimeWithoutDate << msg << '\n';
-            SPD_L->error(msg);
+            FormattedOutput::LogAndPrint(msg);
         }
         catch (const std::exception& ex) {
             const auto msg = "Common exception while sending HTTP request for device " + pnpIdUtf8 + ": " + std::string(ex.what()); std::cout << FormattedOutput::CurrentLocalTimeWithoutDate << msg << '\n';
-            SPD_L->error(msg);
+            FormattedOutput::LogAndPrint(msg);
         }
         catch (...) {
             const auto msg = "Unspecified exception while sending HTTP request for device " + pnpIdUtf8; std::cout << FormattedOutput::CurrentLocalTimeWithoutDate << msg << '\n';
-            SPD_L->error(msg);
+            FormattedOutput::LogAndPrint(msg);
         }
         SPD_L->info("...Request handled for device: {}", pnpIdUtf8);
     }

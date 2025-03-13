@@ -16,13 +16,24 @@ private:
 protected:
 	DISALLOW_IMPLICIT_CONSTRUCTORS(FormattedOutput);
 public:
+    static void LogAndPrint(const std::wstring& mess)
+    {
+		SPD_L->info(WString2StringTruncate(mess));
+		std::wcout << CurrentLocalTimeAsWideStringWithoutDate << mess << '\n';
+    }
+
+    static void LogAndPrint(const std::string& mess)
+    {
+        SPD_L->info(mess);
+        std::cout << CurrentLocalTimeWithoutDate << mess << '\n';
+    }
+
 
     static void PrintEvent(AudioDeviceCollectionEvent event, const std::wstring& devicePnpId)
     {
         std::wostringstream wos; wos << L"Event caught: " << ed::GetDeviceCollectionEventAsString(event) << L"."
             << L" Device PnP id: " << devicePnpId << L'\n';
-        SPD_L->info(WString2StringTruncate(wos.str()));
-        std::wcout << CurrentLocalTimeAsWideStringWithoutDate << wos.str() << '\n';
+		LogAndPrint(wos.str());
     }
 
 
@@ -35,8 +46,7 @@ public:
             << "\", " << ed::GetFlowAsString(device->GetFlow())
             << ", Volume " << device->GetCurrentRenderVolume()
             << " / " << device->GetCurrentCaptureVolume();
-        SPD_L->info(WString2StringTruncate(wos.str()));
-		std::wcout << CurrentLocalTimeAsWideStringWithoutDate << wos.str() << '\n';
+		LogAndPrint(wos.str());
     }
 
     static std::string WString2StringTruncate(const std::wstring& str) {
