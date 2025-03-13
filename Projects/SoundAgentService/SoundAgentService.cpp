@@ -61,7 +61,7 @@ protected:
         setUnixOptions(false);  // Force Windows service behavior
     }
 private:
-	std::wstring apiBaseUrl_ = L"http://localhost:5027/api/AudioDevices";
+	std::wstring apiBaseUrl_;
     // bool isService_ = config().getBool("application.runAsService", false);
     static constexpr auto ApiBaseUrlPropertyKey = "custom.apiBaseUrl";
 };

@@ -10,16 +10,25 @@
 
 void ServiceObserver::PostAndPrintCollection() const
 {
-    std::string message("Posting device collection:...");
+    std::string message("Processing device collection...");
 	FormattedOutput::LogAndPrint(message);
 
     for (size_t i = 0; i < collection_.GetSize(); ++i)
     {
         const std::unique_ptr deviceSmartPtr(collection_.CreateItem(i));
         FormattedOutput::PrintDeviceInfo(deviceSmartPtr.get());
-        AudioDeviceApiClient(apiBaseUrl_).PostDeviceToApi(deviceSmartPtr.get());
+        if (!apiBaseUrl_.empty())
+        {
+            AudioDeviceApiClient apiClient(apiBaseUrl_);
+            apiClient.PostDeviceToApi(deviceSmartPtr.get());
+        }
+        else
+        {
+			SPD_L->info("No API base URL configured. Skipping API call.");
+        }
+
     }
-    message = "...Posting device collection finished.";
+    message = "...Processing device collection finished.";
     FormattedOutput::LogAndPrint(message);
     std::cout
         << '\n'

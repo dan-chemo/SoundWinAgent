@@ -7,20 +7,19 @@
 
 #include <SpdLogger.h>
 
-#include <cpprest/http_client.h>
-#include <cpprest/json.h>
-#include <nlohmann/json.hpp>
 #include <string>
 #include <sstream>
+#include <nlohmann/json.hpp>
+
 
 #include <TimeUtils.h>
 #include "FormattedOutput.h"
-
-using namespace web::http;
-using namespace web::http::client;
+#include "HttpRequestProcessor.h"
 
 
-AudioDeviceApiClient::AudioDeviceApiClient(std::wstring apiBaseUrl): apiBaseUrl_(std::move(apiBaseUrl))
+AudioDeviceApiClient::AudioDeviceApiClient(std::wstring apiBaseUrl, std::shared_ptr<HttpRequestProcessor> processor/* = nullptr*/)
+    : apiBaseUrl_(std::move(apiBaseUrl)),
+    requestProcessor_(processor ? processor : std::make_shared<HttpRequestProcessor>(apiBaseUrl_, 5))
 {
 }
 
@@ -28,7 +27,8 @@ void AudioDeviceApiClient::PostDeviceToApi(const SoundDeviceInterface * device) 
 {
     if (!device)
     {
-        const auto msg = "Cannot post device data: nullptr provided"; std::cout << FormattedOutput::CurrentLocalTimeWithoutDate << msg << '\n';
+        const auto msg = "Cannot post device data: nullptr provided";
+        std::cout << FormattedOutput::CurrentLocalTimeWithoutDate << msg << '\n';
         SPD_L->error(msg);
         return;
     }
@@ -59,43 +59,15 @@ void AudioDeviceApiClient::PostDeviceToApi(const SoundDeviceInterface * device) 
     const web::json::value jsonPayload = web::json::value::parse(payload.dump());
 
     // Create HTTP client and request
-    http_client client(apiBaseUrl_);
-    http_request request(methods::POST);
+    web::http::client::http_client client(apiBaseUrl_);
+    web::http::http_request request(web::http::methods::POST);
     request.set_body(jsonPayload);
     request.headers().set_content_type(U("application/json"));
 
-    SPD_L->info("Sending request for device: {}", pnpIdUtf8);
-    try {
-        // Send request and handle response
-        const pplx::task<http_response> responseTask = client.request(request);
-        responseTask.then([pnpIdUtf8](const http_response& response) {
-            if (response.status_code() == status_codes::Created ||
-                response.status_code() == status_codes::OK ||
-                response.status_code() == status_codes::NoContent)
-            {
-                const auto msg = "Device data posted successfully for: " + pnpIdUtf8;
-                FormattedOutput::LogAndPrint(msg);
-            }
-            else
-            {
-                const auto statusCode = response.status_code();
-                const auto msg = "Failed to post device data for: " + pnpIdUtf8 +
-                    " - Status code: " + std::to_string(statusCode); 
-                FormattedOutput::LogAndPrint(msg);
-            }
-        }).wait(); // Blocking call for simplicity
-    }
-    catch (const http_exception& ex) {
-        const auto msg = "HTTP exception for device " + pnpIdUtf8 + ": " + std::string(ex.what()); std::cout << FormattedOutput::CurrentLocalTimeWithoutDate << msg << '\n';
-        FormattedOutput::LogAndPrint(msg);
-    }
-    catch (const std::exception& ex) {
-        const auto msg = "Common exception while sending HTTP request for device " + pnpIdUtf8 + ": " + std::string(ex.what()); std::cout << FormattedOutput::CurrentLocalTimeWithoutDate << msg << '\n';
-        FormattedOutput::LogAndPrint(msg);
-    }
-    catch (...) {
-        const auto msg = "Unspecified exception while sending HTTP request for device " + pnpIdUtf8; std::cout << FormattedOutput::CurrentLocalTimeWithoutDate << msg << '\n';
-        FormattedOutput::LogAndPrint(msg);
-    }
-    SPD_L->info("...Request handled for device: {}", pnpIdUtf8);
+    SPD_L->info("Enqueueing request for device: {}", pnpIdUtf8);
+
+    // Instead of sending directly, enqueue the request in the processor
+    requestProcessor_->EnqueueRequest(request, pnpIdUtf8);
+
+    SPD_L->info("Request enqueued for device: {}", pnpIdUtf8);
 }

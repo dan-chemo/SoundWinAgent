@@ -33,7 +33,8 @@ void FormattedOutput::PrintDeviceInfo(const SoundDeviceInterface * device)
 {
     const auto idString = device->GetPnpId();
     const std::wstring idAsWideString(idString.begin(), idString.end());
-    std::wostringstream wos; wos << idString
+	std::wostringstream wos; wos << std::wstring(4, L' ')
+        << idString
         << ", \"" << device->GetName()
         << "\", " << ed::GetFlowAsString(device->GetFlow())
         << ", Volume " << device->GetCurrentRenderVolume()
