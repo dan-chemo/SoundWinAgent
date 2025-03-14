@@ -49,7 +49,7 @@ bool HttpRequestProcessor::EnqueueRequest(const web::http::http_request & reques
     lastRequestTime_ = now;
 
     // Add to queue
-    requestQueue_.push(RequestItem{request, deviceId});
+    requestQueue_.push(RequestItem{.Request = request, .DeviceId = deviceId});
 
     // Notify worker thread
     condition_.notify_one();

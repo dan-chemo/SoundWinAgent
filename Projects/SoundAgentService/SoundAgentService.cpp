@@ -3,7 +3,6 @@
 #include <SpdLogger.h>
 
 #include <filesystem>
-#include <iomanip>
 #include <memory>
 #include <tchar.h>
 
@@ -85,19 +84,20 @@ int _tmain(int argc, _TCHAR * argv[])
 
     ed::CoInitRaiiHelper coInitHelper;
 
+	// Transform Unicode command line arguments to UTF-8
     std::vector<std::string> args;
-    std::vector<char*> argPtrs;
+    std::vector<char*> charPointers;
 
     for (int i = 0; i < argc; ++i) {
         std::string utf8Arg;
-        Poco::UnicodeConverter::toUTF16(argv[i], utf8Arg); // MSBuild uses UTF-16
+        Poco::UnicodeConverter::toUTF16(argv[i], utf8Arg);
         args.push_back(utf8Arg);
     }
 
     for (auto& arg : args) {
-        argPtrs.push_back(arg.data());
+        charPointers.push_back(arg.data());
     }
 
     AudioDeviceService app;
-    return app.run(static_cast<int>(argPtrs.size()), argPtrs.data());
+    return app.run(static_cast<int>(charPointers.size()), charPointers.data());
 }

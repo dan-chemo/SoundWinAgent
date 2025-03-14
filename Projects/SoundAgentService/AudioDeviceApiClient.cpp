@@ -18,7 +18,7 @@
 
 
 // ReSharper disable once CppPassValueParameterByConstReference
-AudioDeviceApiClient::AudioDeviceApiClient(std::shared_ptr<HttpRequestProcessor> processor)  // NOLINT(performance-unnecessary-value-param)
+AudioDeviceApiClient::AudioDeviceApiClient(std::shared_ptr<HttpRequestProcessor> processor)  // NOLINT(performance-unnecessary-value-param, modernize-pass-by-value)
     : requestProcessor_(processor)  // NOLINT(performance-unnecessary-value-param)
 {
 }
