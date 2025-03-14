@@ -22,14 +22,13 @@ public:
 
     ~HttpRequestProcessor();
 
-    // Add request to the queue
     bool EnqueueRequest(
         const web::http::http_request & request,
         const std::string & deviceId);
 
 private:
-    void ProcessRequests();
-    static void SendRequest(RequestItem item, const std::wstring& apiUrl);
+    void ProcessingWorker();
+    static void SendRequest(const RequestItem & item, const std::wstring& apiUrl);
 
 private:
     std::wstring apiBaseUrl_;

@@ -5,8 +5,8 @@
 
 class FormattedOutput final
 {
-private:
-	~FormattedOutput() = default;
+public:
+    ~FormattedOutput() = delete;
 protected:
 	DISALLOW_IMPLICIT_CONSTRUCTORS(FormattedOutput);
 public:

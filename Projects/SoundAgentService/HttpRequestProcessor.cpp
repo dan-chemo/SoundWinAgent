@@ -5,7 +5,6 @@
 
 #include <TimeUtils.h>
 
-//#include <spdlog/fmt/ostr.h>
 #include "FormattedOutput.h"
 
 
@@ -15,7 +14,7 @@ HttpRequestProcessor::HttpRequestProcessor(std::wstring apiBaseUrl, int minInter
       , minInterval_(std::chrono::seconds(minIntervalSeconds))
       , lastRequestTime_(std::chrono::system_clock::now() - minInterval_)
 {
-    workerThread_ = std::thread(&HttpRequestProcessor::ProcessRequests, this);
+    workerThread_ = std::thread(&HttpRequestProcessor::ProcessingWorker, this);
 }
 
 HttpRequestProcessor::~HttpRequestProcessor()
@@ -37,8 +36,8 @@ bool HttpRequestProcessor::EnqueueRequest(const web::http::http_request & reques
 
     // Check if enough time has passed since last request
     const auto now = std::chrono::system_clock::now();
-    const auto elapsed = now - lastRequestTime_;
-    if (elapsed < minInterval_)
+    if (const auto elapsed = now - lastRequestTime_;
+        elapsed < minInterval_)
     {
         SPD_L->info("Current time is {}.", ed::systemTimeToStringWithLocalTime(now, std::string(" ")));
         SPD_L->info("Previous request's time was {}.", ed::systemTimeToStringWithLocalTime(lastRequestTime_, std::string(" ")));
@@ -57,7 +56,7 @@ bool HttpRequestProcessor::EnqueueRequest(const web::http::http_request & reques
 	return true;
 }
 
-void HttpRequestProcessor::SendRequest(RequestItem item, const std::wstring& apiUrl)
+void HttpRequestProcessor::SendRequest(const RequestItem & item, const std::wstring& apiUrl)
 {
     try
     {
@@ -103,12 +102,11 @@ void HttpRequestProcessor::SendRequest(RequestItem item, const std::wstring& api
     }
 }
 
-void HttpRequestProcessor::ProcessRequests()
+void HttpRequestProcessor::ProcessingWorker()
 {
     while (true)
     {
         RequestItem item;
-
         {
             std::unique_lock lock(mutex_);
 
