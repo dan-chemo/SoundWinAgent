@@ -23,8 +23,8 @@ class AudioDeviceService final : public Poco::Util::ServerApplication {
 protected:
     int main(const std::vector<std::string>& args) override {
         try {
-            const auto msgStart = "Starting Sound Agent..."; std::cout << FormattedOutput::CurrentLocalTimeWithoutDate << msgStart << '\n';
-            SPD_L->info(msgStart);
+            const auto msgStart = "Starting Sound Agent...";
+            FormattedOutput::LogAndPrint(msgStart);
 
             const auto coll(SoundAgent::CreateDeviceCollection(L"", true));
             ServiceObserver o(*coll, apiBaseUrl_);
@@ -37,8 +37,9 @@ protected:
 
             coll->Unsubscribe(o);
 
-            const auto msgStop = "Stopping..."; std::cout << FormattedOutput::CurrentLocalTimeWithoutDate << msgStop << '\n';
-            SPD_L->info(msgStop);
+            const auto msgStop = "Stopping...";
+            FormattedOutput::LogAndPrint(msgStop);
+
             return EXIT_OK;
         }
         catch (const Poco::Exception& ex) {

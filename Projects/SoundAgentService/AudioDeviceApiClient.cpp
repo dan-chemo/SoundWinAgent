@@ -64,10 +64,15 @@ void AudioDeviceApiClient::PostDeviceToApi(const SoundDeviceInterface * device) 
     request.set_body(jsonPayload);
     request.headers().set_content_type(U("application/json"));
 
-    SPD_L->info("Enqueueing request for device: {}", pnpIdUtf8);
+    SPD_L->info("Enqueueing request for device: {}...", pnpIdUtf8);
 
     // Instead of sending directly, enqueue the request in the processor
-    requestProcessor_->EnqueueRequest(request, pnpIdUtf8);
-
-    SPD_L->info("Request enqueued for device: {}", pnpIdUtf8);
+    if(requestProcessor_->EnqueueRequest(request, pnpIdUtf8))
+    {
+		FormattedOutput::LogAndPrint("Device data enqueued for: " + pnpIdUtf8);
+	}
+	else
+	{
+		FormattedOutput::LogAndPrint("Device data enqueuing skipped for: " + pnpIdUtf8);
+	}
 }
