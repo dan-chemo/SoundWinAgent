@@ -27,15 +27,15 @@ protected:
             FormattedOutput::LogAndPrint(msgStart);
 
             const auto coll(SoundAgent::CreateDeviceCollection(L"", true));
-            ServiceObserver o(*coll, apiBaseUrl_);
-            coll->Subscribe(o);
+            ServiceObserver serviceObserver(*coll, apiBaseUrl_);
+            coll->Subscribe(serviceObserver);
 
             coll->ResetContent();
-            o.PostAndPrintCollection();
+            serviceObserver.PostAndPrintCollection();
 
             waitForTerminationRequest();
 
-            coll->Unsubscribe(o);
+            coll->Unsubscribe(serviceObserver);
 
             const auto msgStop = "Stopping...";
             FormattedOutput::LogAndPrint(msgStop);

@@ -3,6 +3,9 @@
 
 #include "HttpRequestProcessor.h"
 
+#include <TimeUtils.h>
+
+//#include <spdlog/fmt/ostr.h>
 #include "FormattedOutput.h"
 
 
@@ -34,13 +37,12 @@ bool HttpRequestProcessor::EnqueueRequest(const web::http::http_request & reques
 
     // Check if enough time has passed since last request
     const auto now = std::chrono::system_clock::now();
-
-    if (const auto elapsed = now - lastRequestTime_
-        ; elapsed < minInterval_)
+    const auto elapsed = now - lastRequestTime_;
+    if (elapsed < minInterval_)
     {
-
-		SPD_L->info("Skipping request for device: {} (too soon after previous request)", deviceId);
-        requestQueue_.pop();
+        SPD_L->info("Current time is {}.", ed::systemTimeToStringWithLocalTime(now, std::string(" ")));
+        SPD_L->info("Previous request's time was {}.", ed::systemTimeToStringWithLocalTime(lastRequestTime_, std::string(" ")));
+        SPD_L->info("Skipping request for device: {0}, because it comes less then in {1} sec after previous request.", deviceId, minInterval_.count());
         return false;
     }
 
@@ -57,7 +59,6 @@ bool HttpRequestProcessor::EnqueueRequest(const web::http::http_request & reques
 
 void HttpRequestProcessor::SendRequest(RequestItem item, const std::wstring& apiUrl)
 {
-    // Process request outside of lock
     try
     {
         SPD_L->info("Processing request for device: {}", item.DeviceId);

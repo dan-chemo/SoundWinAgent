@@ -17,9 +17,9 @@
 #include "HttpRequestProcessor.h"
 
 
-AudioDeviceApiClient::AudioDeviceApiClient(std::wstring apiBaseUrl, std::shared_ptr<HttpRequestProcessor> processor/* = nullptr*/)
-    : apiBaseUrl_(std::move(apiBaseUrl)),
-    requestProcessor_(processor ? processor : std::make_shared<HttpRequestProcessor>(apiBaseUrl_, 5))
+// ReSharper disable once CppPassValueParameterByConstReference
+AudioDeviceApiClient::AudioDeviceApiClient(std::shared_ptr<HttpRequestProcessor> processor)  // NOLINT(performance-unnecessary-value-param)
+    : requestProcessor_(processor)  // NOLINT(performance-unnecessary-value-param)
 {
 }
 
@@ -59,7 +59,6 @@ void AudioDeviceApiClient::PostDeviceToApi(const SoundDeviceInterface * device) 
     const web::json::value jsonPayload = web::json::value::parse(payload.dump());
 
     // Create HTTP client and request
-    web::http::client::http_client client(apiBaseUrl_);
     web::http::http_request request(web::http::methods::POST);
     request.set_body(jsonPayload);
     request.headers().set_content_type(U("application/json"));

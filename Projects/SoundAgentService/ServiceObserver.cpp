@@ -4,9 +4,18 @@
 
 #include "FormattedOutput.h"
 #include "AudioDeviceApiClient.h"
+#include "HttpRequestProcessor.h"
+
 
 #include <SpdLogger.h>
 
+
+ServiceObserver::ServiceObserver(AudioDeviceCollectionInterface & collection, std::wstring apiBaseUrl)
+    : collection_(collection)
+    , apiBaseUrl_(std::move(apiBaseUrl))
+	, requestProcessorSmartPtr_(std::make_shared<HttpRequestProcessor>(apiBaseUrl_, 0))
+{
+}
 
 void ServiceObserver::PostAndPrintCollection() const
 {
@@ -19,7 +28,7 @@ void ServiceObserver::PostAndPrintCollection() const
         FormattedOutput::PrintDeviceInfo(deviceSmartPtr.get());
         if (!apiBaseUrl_.empty())
         {
-            AudioDeviceApiClient apiClient(apiBaseUrl_);
+			AudioDeviceApiClient apiClient(requestProcessorSmartPtr_);
             apiClient.PostDeviceToApi(deviceSmartPtr.get());
         }
         else

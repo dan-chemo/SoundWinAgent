@@ -2,13 +2,11 @@
 
 #include "../SoundAgentDll/SoundAgentInterface.h"
 
+class HttpRequestProcessor;
+
 class ServiceObserver final : public AudioDeviceCollectionObserverInterface {
 public:
-    explicit ServiceObserver(AudioDeviceCollectionInterface& collection, std::wstring apiBaseUrl)
-        : collection_(collection)
-        , apiBaseUrl_(std::move(apiBaseUrl))
-    {
-    }
+    explicit ServiceObserver(AudioDeviceCollectionInterface& collection, std::wstring apiBaseUrl);
 
     DISALLOW_COPY_MOVE(ServiceObserver);
     ~ServiceObserver() override = default;
@@ -28,5 +26,6 @@ public:
 private:
     AudioDeviceCollectionInterface& collection_;
     std::wstring apiBaseUrl_;
+    std::shared_ptr<HttpRequestProcessor> requestProcessorSmartPtr_;
 };
 
