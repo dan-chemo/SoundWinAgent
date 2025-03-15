@@ -13,6 +13,8 @@
 
 
 #include <TimeUtils.h>
+#include <boost/crc.hpp>
+
 #include "FormattedOutput.h"
 #include "HttpRequestProcessor.h"
 
@@ -33,16 +35,10 @@ void AudioDeviceApiClient::PostDeviceToApi(const SoundDeviceInterface * device) 
         return;
     }
 
-    // Use system hostname for network identification
-    wchar_t hostNameBuffer[MAX_COMPUTERNAME_LENGTH + 1];
-    DWORD bufferSize = std::size(hostNameBuffer);
-    GetComputerNameW(hostNameBuffer, &bufferSize);
-    const std::wstring hostName(hostNameBuffer);
-
     // Convert wstring parameters to UTF-8 strings for JSON
     const std::string pnpIdUtf8 = utility::conversions::to_utf8string(device->GetPnpId());
     const std::string nameUtf8 = utility::conversions::to_utf8string(device->GetName());
-    const std::string hostNameUtf8 = utility::conversions::to_utf8string(hostName);
+    const std::string hostNameHash = GetHostNameHash();
 
     auto localTimeAsString = ed::getLocalTimeAsString("T");
     localTimeAsString = localTimeAsString.substr(0, localTimeAsString.length() - 7);
@@ -52,7 +48,7 @@ void AudioDeviceApiClient::PostDeviceToApi(const SoundDeviceInterface * device) 
         {"name", nameUtf8},
         {"volume", static_cast<const int>(device->GetCurrentRenderVolume())},
         {"lastSeen", localTimeAsString},
-        {"hostName", hostNameUtf8}
+        {"hostName", hostNameHash}
     };
 
     // Convert nlohmann::json to cpprestsdk::json::value
@@ -75,3 +71,32 @@ void AudioDeviceApiClient::PostDeviceToApi(const SoundDeviceInterface * device) 
 		FormattedOutput::LogAndPrint("Device data enqueuing skipped for: " + pnpIdUtf8);
 	}
 }
+
+std::string AudioDeviceApiClient::GetHostNameHash()
+{
+	static const std::string HostNameHash = []() -> std::string
+		{
+            wchar_t hostNameBuffer[MAX_COMPUTERNAME_LENGTH + 1];
+            DWORD bufferSize = std::size(hostNameBuffer);
+            GetComputerNameW(hostNameBuffer, &bufferSize);
+            std::wstring hostName(hostNameBuffer);
+            std::ranges::transform(hostName, hostName.begin(),
+                                   [](wchar_t c) { return std::toupper(c); });
+            return ShortHash(utility::conversions::to_utf8string(hostNameBuffer));
+		}();
+    return HostNameHash;
+}
+
+std::string AudioDeviceApiClient::ShortHash(const std::string & input)
+{
+    boost::crc_32_type crc32;
+    crc32.process_bytes(input.data(), input.length());
+
+    // Get the CRC32 checksum
+    const uint32_t checksum = crc32.checksum();
+
+    std::ostringstream ss;
+    ss << std::hex << checksum;
+    return ss.str();
+}
+

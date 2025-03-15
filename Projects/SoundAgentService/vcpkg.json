@@ -2,7 +2,8 @@
   "dependencies": [
     "poco",
     "cpprestsdk",
-    "nlohmann-json"
+    "nlohmann-json",
+    "boost-crc"
   ],
   "builtin-baseline": "d5ec528843d29e3a52d745a64b469f810b2cedbf"
 }
