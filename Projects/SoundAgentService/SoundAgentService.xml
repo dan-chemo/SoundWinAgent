@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <config>
     <custom>
-        <apiBaseUrl>http://localhost:5027/api/AudioDevices</apiBaseUrl>
+        <apiBaseUrl>883f0dc2d71cf449070325ec4167bf22250e1d5b7b961b2ecc08d8a34333e8821b571341f3443c401ccf3791d975302836733473eadb3b8c44ff34a7df4b0ba61c9f16f8959f3cd3308cf0</apiBaseUrl>
 <!--
+        <apiBaseUrl>http://localhost:5027/api/AudioDevices</apiBaseUrl>
         <apiBaseUrl>https://studious-bassoon-7vp9wvpw7rxjf4wg-5027.app.github.dev/api/AudioDevices</apiBaseUrl>
 -->
     </custom>

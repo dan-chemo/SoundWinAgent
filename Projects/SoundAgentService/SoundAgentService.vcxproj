@@ -61,6 +61,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="..\SoundAgentLib\generate-uuid.h" />
+    <ClInclude Include="SodiumCrypt.h" />
     <ClInclude Include="AssemblyInformation.h" />
     <ClInclude Include="AudioDeviceApiClient.h" />
     <ClInclude Include="FormattedOutput.h" />
@@ -71,6 +72,7 @@
     <ClInclude Include="targetver.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="SodiumCrypt.cpp" />
     <ClCompile Include="AudioDeviceApiClient.cpp" />
     <ClCompile Include="FormattedOutput.cpp" />
     <ClCompile Include="HttpRequestProcessor.cpp" />

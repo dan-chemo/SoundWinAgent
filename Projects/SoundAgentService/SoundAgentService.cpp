@@ -10,6 +10,7 @@
 #include <Poco/UnicodeConverter.h>
 #include <vector>
 
+#include "SodiumCrypt.h"
 #include "AudioDeviceApiClient.h"
 #include "FormattedOutput.h"
 #include "ServiceObserver.h"
@@ -53,7 +54,9 @@ protected:
 
         if (config().hasProperty(ApiBaseUrlPropertyKey))
         {
-            const auto narrowVal = config().getString(ApiBaseUrlPropertyKey);
+            auto narrowVal = config().getString(ApiBaseUrlPropertyKey);
+			narrowVal = SodiumDecrypt(narrowVal, "32-characters-long-secure-key-12");
+
             apiBaseUrl_ = std::wstring(narrowVal.length(), L' ');
             std::ranges::copy(narrowVal, apiBaseUrl_.begin());
         }

@@ -3,7 +3,8 @@
     "poco",
     "cpprestsdk",
     "nlohmann-json",
-    "boost-crc"
+    "boost-crc",
+    "libsodium"
   ],
   "builtin-baseline": "d5ec528843d29e3a52d745a64b469f810b2cedbf"
 }
