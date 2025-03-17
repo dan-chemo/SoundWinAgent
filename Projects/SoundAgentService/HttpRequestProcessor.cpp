@@ -11,8 +11,6 @@
 HttpRequestProcessor::HttpRequestProcessor(std::wstring apiBaseUrl, int minIntervalSeconds/* = 5*/)
     : apiBaseUrl_(std::move(apiBaseUrl))
       , running_(true)
-      , minInterval_(std::chrono::seconds(minIntervalSeconds))
-      , lastRequestTime_(std::chrono::system_clock::now() - minInterval_)
 {
     workerThread_ = std::thread(&HttpRequestProcessor::ProcessingWorker, this);
 }
@@ -33,20 +31,6 @@ HttpRequestProcessor::~HttpRequestProcessor()
 bool HttpRequestProcessor::EnqueueRequest(const web::http::http_request & request, const std::string & deviceId)
 {
     std::unique_lock lock(mutex_);
-
-    // Check if enough time has passed since last request
-    const auto now = std::chrono::system_clock::now();
-    if (const auto elapsed = now - lastRequestTime_;
-        elapsed < minInterval_)
-    {
-        SPD_L->info("Current time is {}.", ed::systemTimeToStringWithLocalTime(now, std::string(" ")));
-        SPD_L->info("Previous request's time was {}.", ed::systemTimeToStringWithLocalTime(lastRequestTime_, std::string(" ")));
-        SPD_L->info("Skipping request for device: {0}, because it comes less then in {1} sec after previous request.", deviceId, minInterval_.count());
-        return false;
-    }
-
-    // Update last request time
-    lastRequestTime_ = now;
 
     // Add to queue
     requestQueue_.push(RequestItem{.Request = request, .DeviceId = deviceId});

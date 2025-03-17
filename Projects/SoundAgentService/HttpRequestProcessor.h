@@ -38,6 +38,4 @@ private:
     std::condition_variable condition_;
     std::thread workerThread_;
     std::atomic<bool> running_;
-    std::chrono::seconds minInterval_;
-    std::chrono::system_clock::time_point lastRequestTime_;
 };
