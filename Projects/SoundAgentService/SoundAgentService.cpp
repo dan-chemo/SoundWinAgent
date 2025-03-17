@@ -27,7 +27,7 @@ protected:
             FormattedOutput::LogAndPrint(msgStart);
 
             const auto coll(SoundAgent::CreateDeviceCollection(L"", true));
-            ServiceObserver serviceObserver(*coll, apiBaseUrl_);
+            ServiceObserver serviceObserver(*coll, apiBaseUrl_, universalToken_);
             coll->Subscribe(serviceObserver);
 
             coll->ResetContent();
@@ -52,21 +52,40 @@ protected:
         loadConfiguration();
         ServerApplication::initialize(self);
 
-        if (config().hasProperty(ApiBaseUrlPropertyKey))
+        if (!config().hasProperty(ApiBaseUrlPropertyKey))
         {
-            auto narrowVal = config().getString(ApiBaseUrlPropertyKey);
-			narrowVal = SodiumDecrypt(narrowVal, "32-characters-long-secure-key-12");
-
-            apiBaseUrl_ = std::wstring(narrowVal.length(), L' ');
-            std::ranges::copy(narrowVal, apiBaseUrl_.begin());
+			const auto msg = "No API base URL configured. Skipping API call.";
+			FormattedOutput::LogAndPrint(msg);
+			return;
         }
+
+        auto narrowVal = config().getString(ApiBaseUrlPropertyKey);
+		narrowVal = SodiumDecrypt(narrowVal, "32-characters-long-secure-key-12");
+
+        apiBaseUrl_ = std::wstring(narrowVal.length(), L' ');
+        std::ranges::copy(narrowVal, apiBaseUrl_.begin());
+
+        if (!config().hasProperty(UniversalTokenPropertyKey))
+        {
+			const auto msg = "No universal token configured. Skipping API call.";
+            FormattedOutput::LogAndPrint(msg);
+            return;
+        }
+
+        auto universalTokenNarrow = config().getString(UniversalTokenPropertyKey);
+        universalTokenNarrow = SodiumDecrypt(universalTokenNarrow, "32-characters-long-secure-key-12");
+        universalToken_ = std::wstring(universalTokenNarrow.length(), L' ');
+        std::ranges::copy(universalTokenNarrow, universalToken_.begin());
+
 
         setUnixOptions(false);  // Force Windows service behavior
     }
 private:
 	std::wstring apiBaseUrl_;
+	std::wstring universalToken_;
     // bool isService_ = config().getBool("application.runAsService", false);
     static constexpr auto ApiBaseUrlPropertyKey = "custom.apiBaseUrl";
+    static constexpr auto UniversalTokenPropertyKey = "custom.universalToken";
 };
 
 int _tmain(int argc, _TCHAR * argv[])

@@ -16,7 +16,8 @@ public:
         std::string DeviceId; // For logging/tracking
     };
 
-	explicit HttpRequestProcessor(std::wstring apiBaseUrl, int minIntervalSeconds = 5);
+    HttpRequestProcessor(std::wstring apiBaseUrl,
+                         std::wstring universalToken);
 
     DISALLOW_COPY_MOVE(HttpRequestProcessor);
 
@@ -28,11 +29,13 @@ public:
 
 private:
     void ProcessingWorker();
-    static void SendRequest(const RequestItem & item, const std::wstring& apiUrl);
+    static bool SendRequest(const RequestItem & item, const std::wstring & apiUrl);
+    RequestItem CreateAwakingRequest() const;
+
 
 private:
     std::wstring apiBaseUrl_;
-
+	std::wstring universalToken_;
     std::queue<RequestItem> requestQueue_;
     std::mutex mutex_;
     std::condition_variable condition_;

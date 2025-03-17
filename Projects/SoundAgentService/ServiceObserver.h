@@ -6,7 +6,9 @@ class HttpRequestProcessor;
 
 class ServiceObserver final : public AudioDeviceCollectionObserverInterface {
 public:
-    explicit ServiceObserver(AudioDeviceCollectionInterface& collection, std::wstring apiBaseUrl);
+    ServiceObserver(AudioDeviceCollectionInterface& collection,
+        std::wstring apiBaseUrl,
+        std::wstring universalToken);
 
     DISALLOW_COPY_MOVE(ServiceObserver);
     ~ServiceObserver() override = default;
@@ -26,6 +28,7 @@ public:
 private:
     AudioDeviceCollectionInterface& collection_;
     std::wstring apiBaseUrl_;
+    std::wstring universalToken_;
     std::shared_ptr<HttpRequestProcessor> requestProcessorSmartPtr_;
 };
 

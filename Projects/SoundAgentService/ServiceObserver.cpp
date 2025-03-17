@@ -10,10 +10,13 @@
 #include <SpdLogger.h>
 
 
-ServiceObserver::ServiceObserver(AudioDeviceCollectionInterface & collection, std::wstring apiBaseUrl)
+ServiceObserver::ServiceObserver(AudioDeviceCollectionInterface& collection,
+    std::wstring apiBaseUrl,
+    std::wstring universalToken)
     : collection_(collection)
     , apiBaseUrl_(std::move(apiBaseUrl))
-	, requestProcessorSmartPtr_(std::make_shared<HttpRequestProcessor>(apiBaseUrl_, 0))
+    , universalToken_(std::move(universalToken))
+    , requestProcessorSmartPtr_(std::make_shared<HttpRequestProcessor>(apiBaseUrl_, universalToken_))
 {
 }
 
