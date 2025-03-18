@@ -120,7 +120,7 @@ void HttpRequestProcessor::ProcessingWorker()
         }
 
         if (SendRequest(item, apiBaseUrl_))
-        {
+		{   // Request was successful
             std::unique_lock lock(mutex_);
             retryAwakingCount_ = 0;
             requestQueue_.pop();
@@ -128,17 +128,21 @@ void HttpRequestProcessor::ProcessingWorker()
             continue;
         }
 
-		if (++retryAwakingCount_ <= maxAwakingRetries_)
-		{
+		if (++retryAwakingCount_ <= MAX_AWAKING_RETRIES)
+		{   // let us retry
             SendRequest(
                 CreateAwakingRequest()
                 , L"https://api.github.com/user/codespaces/studious-bassoon-7vp9wvpw7rxjf4wg/start");
         }
 		else
-		{
+		{   // we have tried enough. Abandon the request (pop)
             std::unique_lock lock(mutex_);
-            retryAwakingCount_ = 0;
             requestQueue_.pop();
+            if (retryAwakingCount_ > MAX_IGNORING_RETRIES)
+            {
+				retryAwakingCount_ = 0;
+            }
+                
         }
         std::this_thread::sleep_for(std::chrono::milliseconds(100));
     }
@@ -161,7 +165,7 @@ HttpRequestProcessor::RequestItem HttpRequestProcessor::CreateAwakingRequest() c
     request.headers().set_content_type(U("application/json"));
     request.set_body(jsonPayload);
 
-	std::ostringstream oss; oss << " awaking a backend " << (int)retryAwakingCount_ << " / " << (int)maxAwakingRetries_;
+	std::ostringstream oss; oss << " awaking a backend " << retryAwakingCount_ << " / " << MAX_AWAKING_RETRIES;
     return RequestItem{ request, oss.str()};
 }
 

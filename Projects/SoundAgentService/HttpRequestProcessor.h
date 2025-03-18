@@ -41,6 +41,7 @@ private:
     std::condition_variable condition_;
     std::thread workerThread_;
     std::atomic<bool> running_;
-	uint8_t retryAwakingCount_ = 0;
-	const uint8_t maxAwakingRetries_ = 20;
+	uint64_t retryAwakingCount_ = 0;
+    static constexpr uint64_t MAX_AWAKING_RETRIES = 20;
+    static constexpr uint64_t MAX_IGNORING_RETRIES = MAX_AWAKING_RETRIES * 3;
 };
