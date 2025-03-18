@@ -14,6 +14,11 @@
 
 #include <VersionInformation.h>
 
+#include <SpdLogger.h>
+
+#include "FormattedOutput.h"
+#include "../SoundAgentDll/SoundAgentInterface.h"
+
 #include <cstdio>
 #include <tchar.h>
 #include <chrono>

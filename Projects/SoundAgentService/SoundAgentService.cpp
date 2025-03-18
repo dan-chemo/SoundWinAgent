@@ -3,7 +3,6 @@
 #include <SpdLogger.h>
 
 #include <filesystem>
-#include <iomanip>
 #include <memory>
 #include <tchar.h>
 
@@ -11,86 +10,36 @@
 #include <Poco/UnicodeConverter.h>
 #include <vector>
 
+#include "SodiumCrypt.h"
 #include "AudioDeviceApiClient.h"
 #include "FormattedOutput.h"
+#include "ServiceObserver.h"
+
 #include "../SoundAgentLib/CoInitRaiiHelper.h"
 #include "../SoundAgentDll/SoundAgentInterface.h"
-
-class Observer final : public AudioDeviceCollectionObserverInterface {
-public:
-    explicit Observer(AudioDeviceCollectionInterface & collection, std::wstring apiBaseUrl)
-        : collection_(collection)
-        , apiBaseUrl_(std::move(apiBaseUrl))
-    {
-    }
-
-    DISALLOW_COPY_MOVE(Observer);
-    ~Observer() override = default;
-
-public:
-    void PostAndPrintCollection() const
-    {
-        const std::string message1("Posting device collection:..."); std::cout << FormattedOutput::CurrentLocalTimeWithoutDate << message1 << '\n';
-        SPD_L->info(message1);
-        for (size_t i = 0; i < collection_.GetSize(); ++i)
-        {
-            const std::unique_ptr deviceSmartPtr(collection_.CreateItem(i));
-            FormattedOutput::PrintDeviceInfo(deviceSmartPtr.get());
-            AudioDeviceApiClient(apiBaseUrl_).PostDeviceToApi(deviceSmartPtr.get());
-        }
-        const std::string message2("...Posting device collection finished."); std::cout << FormattedOutput::CurrentLocalTimeWithoutDate << message2 << '\n';
-        SPD_L->info(message2);
-    }
-
-    void OnCollectionChanged(AudioDeviceCollectionEvent event, const std::wstring& devicePnpId) override
-	{
-        FormattedOutput::PrintEvent(event, devicePnpId);
-
-        if (event == AudioDeviceCollectionEvent::Discovered
-            || event == AudioDeviceCollectionEvent::VolumeChanged
-        )
-        {
-			PostAndPrintCollection();
-        }
-    }
-
-    void OnTrace(const std::wstring& line) override
-    {
-        SPD_L->info(FormattedOutput::WString2StringTruncate(line));
-    }
-
-    void OnTraceDebug(const std::wstring& line) override
-    {
-        OnTrace(line);
-    }
-
-private:
-    AudioDeviceCollectionInterface& collection_;
-    std::wstring apiBaseUrl_;
-};
-
 
 
 class AudioDeviceService final : public Poco::Util::ServerApplication {
 protected:
     int main(const std::vector<std::string>& args) override {
         try {
-            const auto msgStart = "Starting Sound Agent Service..."; std::cout << FormattedOutput::CurrentLocalTimeWithoutDate << msgStart << '\n';
-            SPD_L->info(msgStart);
+            const auto msgStart = "Starting Sound Agent...";
+            FormattedOutput::LogAndPrint(msgStart);
 
             const auto coll(SoundAgent::CreateDeviceCollection(L"", true));
-            Observer o(*coll, apiBaseUrl_);
-            coll->Subscribe(o);
+            ServiceObserver serviceObserver(*coll, apiBaseUrl_, universalToken_, codespaceName_);
+            coll->Subscribe(serviceObserver);
 
             coll->ResetContent();
-            o.PostAndPrintCollection();
+            serviceObserver.PostAndPrintCollection();
 
             waitForTerminationRequest();
 
-            coll->Unsubscribe(o);
+            coll->Unsubscribe(serviceObserver);
 
-            const auto msgStop = "Stopping service..."; std::cout << FormattedOutput::CurrentLocalTimeWithoutDate << msgStop << '\n';
-            SPD_L->info(msgStop);
+            const auto msgStop = "Stopping...";
+            FormattedOutput::LogAndPrint(msgStop);
+
             return EXIT_OK;
         }
         catch (const Poco::Exception& ex) {
@@ -99,23 +48,66 @@ protected:
         }
     }
 
+    std::wstring ReadWideStringConfigProperty(const std::string & propertyName) const
+    {
+        if (!config().hasProperty(propertyName))
+        {
+            const auto msg = std::string("FATAL: No \"") + propertyName + "\" property configured.";
+			FormattedOutput::LogAsErrorPrintAndThrow(msg);
+        }
+
+        auto narrowVal = config().getString(propertyName);
+        try
+        {
+            narrowVal = SodiumDecrypt(narrowVal, "32-characters-long-secure-key-12");
+        }
+        catch (const std::exception& ex)
+        {
+            SPD_L->info("Decryption doesn't work: {}.", ex.what());
+        }
+        catch (...)
+        {
+            const auto msg = std::string("Unknown error. Propagating...");
+            FormattedOutput::LogAndPrint(msg);
+            throw;
+        }
+
+		std::wstring returnValue(narrowVal.length(), L' ');
+        std::ranges::copy(narrowVal, returnValue.begin());
+		return returnValue;
+    }
+
     void initialize(Application& self) override {
         loadConfiguration();
         ServerApplication::initialize(self);
 
-        if (config().hasProperty(ApiBaseUrlPropertyKey))
+       
+		if (argv().size() == 2)
+		{
+			const auto baseUrlNarrow = argv()[1];
+			apiBaseUrl_ = std::wstring(baseUrlNarrow.length(), L' ');
+            std::ranges::copy(baseUrlNarrow, apiBaseUrl_.begin());
+        }
+        else
         {
-            const auto narrowVal = config().getString(ApiBaseUrlPropertyKey);
-            apiBaseUrl_ = std::wstring(narrowVal.length(), L' ');
-            std::ranges::copy(narrowVal, apiBaseUrl_.begin());
+            apiBaseUrl_ = ReadWideStringConfigProperty(API_BASE_URL_PROPERTY_KEY);
         }
 
-        // Windows service registration
+		universalToken_ = ReadWideStringConfigProperty(UNIVERSAL_TOKEN_PROPERTY_KEY);
+
+		codespaceName_ = ReadWideStringConfigProperty(CODESPACE_NAME_PROPERTY_KEY);
+
         setUnixOptions(false);  // Force Windows service behavior
     }
 private:
-	std::wstring apiBaseUrl_ = L"http://localhost:5027/api/AudioDevices";
-    static constexpr auto ApiBaseUrlPropertyKey = "custom.apiBaseUrl";
+	std::wstring apiBaseUrl_;
+	std::wstring universalToken_;
+    std::wstring codespaceName_;
+
+    // bool isService_ = config().getBool("application.runAsService", false);
+    static constexpr auto API_BASE_URL_PROPERTY_KEY = "custom.apiBaseUrl";
+    static constexpr auto UNIVERSAL_TOKEN_PROPERTY_KEY = "custom.universalToken";
+    static constexpr auto CODESPACE_NAME_PROPERTY_KEY = "custom.codespaceName";
 };
 
 int _tmain(int argc, _TCHAR * argv[])
@@ -136,19 +128,20 @@ int _tmain(int argc, _TCHAR * argv[])
 
     ed::CoInitRaiiHelper coInitHelper;
 
+	// Transform Unicode command line arguments to UTF-8
     std::vector<std::string> args;
-    std::vector<char*> argPtrs;
+    std::vector<char*> charPointers;
 
     for (int i = 0; i < argc; ++i) {
         std::string utf8Arg;
-        Poco::UnicodeConverter::toUTF16(argv[i], utf8Arg); // MSBuild uses UTF-16
+        Poco::UnicodeConverter::toUTF16(argv[i], utf8Arg);
         args.push_back(utf8Arg);
     }
 
     for (auto& arg : args) {
-        argPtrs.push_back(arg.data());
+        charPointers.push_back(arg.data());
     }
 
     AudioDeviceService app;
-    return app.run(static_cast<int>(argPtrs.size()), argPtrs.data());
+    return app.run(static_cast<int>(charPointers.size()), charPointers.data());
 }

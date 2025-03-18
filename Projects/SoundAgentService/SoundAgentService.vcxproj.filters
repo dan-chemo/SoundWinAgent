@@ -32,6 +32,15 @@
     <ClInclude Include="FormattedOutput.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="ServiceObserver.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="HttpRequestProcessor.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="SodiumCrypt.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -44,6 +53,15 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="FormattedOutput.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ServiceObserver.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="HttpRequestProcessor.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="SodiumCrypt.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
