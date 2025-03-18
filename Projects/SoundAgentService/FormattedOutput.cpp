@@ -22,6 +22,13 @@ void FormattedOutput::LogAndPrint(const std::string & mess)
     std::cout << CurrentLocalTimeWithoutDate << mess << '\n';
 }
 
+void FormattedOutput::LogAsErrorPrintAndThrow(const std::string & mess)
+{
+    SPD_L->error(mess);
+    std::cerr << CurrentLocalTimeWithoutDate << mess << '\n';
+	throw std::runtime_error(mess);
+}
+
 void FormattedOutput::PrintEvent(AudioDeviceCollectionEvent event, const std::wstring & devicePnpId)
 {
     std::wostringstream wos; wos << L"Event caught: " << ed::GetDeviceCollectionEventAsString(event) << L"."

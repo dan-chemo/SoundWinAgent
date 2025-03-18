@@ -3,15 +3,19 @@
 #include "HttpRequestProcessor.h"
 
 #include <TimeUtils.h>
-#include <nlohmann/json.hpp>
 
 #include "FormattedOutput.h"
 
+#include <nlohmann/json.hpp>
+#include <format>
+
 
 HttpRequestProcessor::HttpRequestProcessor(std::wstring apiBaseUrl,
-    std::wstring universalToken)
-    : apiBaseUrl_(std::move(apiBaseUrl))
+    std::wstring universalToken,
+    std::wstring codespaceName)  // Added codespaceName parameter
+    : apiBaseUrlNoTrailingSlash_(std::move(apiBaseUrl))
     , universalToken_(std::move(universalToken))
+    , codespaceName_(std::move(codespaceName))  // Initialize new member
     , running_(true)
 {
     workerThread_ = std::thread(&HttpRequestProcessor::ProcessingWorker, this);
@@ -42,7 +46,7 @@ bool HttpRequestProcessor::EnqueueRequest(const web::http::http_request & reques
 	return true;
 }
 
-bool HttpRequestProcessor::SendRequest(const RequestItem & item, const std::wstring & apiUrl)
+bool HttpRequestProcessor::SendRequest(const RequestItem & item, const std::wstring & urlBase, const std::wstring & urlSuffix)
 {
     const auto messageDeviceAppendix = item.Hint;
 
@@ -51,7 +55,7 @@ bool HttpRequestProcessor::SendRequest(const RequestItem & item, const std::wstr
         SPD_L->info("Processing request{}", messageDeviceAppendix);
 
         // Create HTTP client object
-        web::http::client::http_client client(apiUrl);
+        web::http::client::http_client client(urlBase + urlSuffix);
 
         // Synchronously send the request and get response
         const web::http::http_response response = client.request(item.Request).get();
@@ -119,7 +123,7 @@ void HttpRequestProcessor::ProcessingWorker()
             item = requestQueue_.front();
         }
 
-        if (SendRequest(item, apiBaseUrl_))
+        if (SendRequest(item, apiBaseUrlNoTrailingSlash_, L"/api/AudioDevices"))
 		{   // Request was successful
             std::unique_lock lock(mutex_);
             retryAwakingCount_ = 0;
@@ -128,11 +132,23 @@ void HttpRequestProcessor::ProcessingWorker()
             continue;
         }
 
+        if (apiBaseUrlNoTrailingSlash_.find(L".github.") == std::wstring::npos)
+        {// NOT  a GitHub Codespace, no wake up
+            const auto msg = std::wstring(L"The expected REST server \"") + apiBaseUrlNoTrailingSlash_ + L"\" is not on GitHub codespace. Please start it";
+			FormattedOutput::LogAndPrint(msg);
+
+			std::unique_lock lock(mutex_);
+			requestQueue_.pop();
+			continue;
+        }
+
 		if (++retryAwakingCount_ <= MAX_AWAKING_RETRIES)
-		{   // let us retry
+        {
+            // let us retry
+            const auto url = std::format(L"https://api.github.com/user/codespaces/{}/start", codespaceName_);
             SendRequest(
                 CreateAwakingRequest()
-                , L"https://api.github.com/user/codespaces/studious-bassoon-7vp9wvpw7rxjf4wg/start");
+                , url);
         }
 		else
 		{   // we have tried enough. Abandon the request (pop)
@@ -150,9 +166,11 @@ void HttpRequestProcessor::ProcessingWorker()
 
 HttpRequestProcessor::RequestItem HttpRequestProcessor::CreateAwakingRequest() const
 {
+    const std::string codespaceNameUtf8 = utility::conversions::to_utf8string(codespaceName_);
+
     const nlohmann::json payload = {
         // ReSharper disable once StringLiteralTypo
-        {"codespace_name", "studious-bassoon-7vp9wvpw7rxjf4wg"}
+        {"codespace_name", codespaceNameUtf8}
     };
     // Convert nlohmann::json to cpprestsdk::json::value
     const web::json::value jsonPayload = web::json::value::parse(payload.dump());
@@ -166,7 +184,5 @@ HttpRequestProcessor::RequestItem HttpRequestProcessor::CreateAwakingRequest() c
     request.set_body(jsonPayload);
 
 	std::ostringstream oss; oss << " awaking a backend " << retryAwakingCount_ << " / " << MAX_AWAKING_RETRIES;
-    return RequestItem{ request, oss.str()};
+    return RequestItem{ request, oss.str() };
 }
-
-

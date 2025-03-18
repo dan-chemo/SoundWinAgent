@@ -16,8 +16,10 @@ public:
         std::string Hint; // For logging/tracking
     };
 
+    // Updated constructor: now takes both apiBaseUrl and codespaceName, along with universalToken.
     HttpRequestProcessor(std::wstring apiBaseUrl,
-                         std::wstring universalToken);
+                         std::wstring universalToken,
+                         std::wstring codespaceName);
 
     DISALLOW_COPY_MOVE(HttpRequestProcessor);
 
@@ -29,19 +31,20 @@ public:
 
 private:
     void ProcessingWorker();
-    static bool SendRequest(const RequestItem & item, const std::wstring & apiUrl);
+    static bool SendRequest(const RequestItem & item, const std::wstring & urlBase, const std::wstring & urlSuffix = L"");
     RequestItem CreateAwakingRequest() const;
 
-
 private:
-    std::wstring apiBaseUrl_;
-	std::wstring universalToken_;
+    std::wstring apiBaseUrlNoTrailingSlash_;
+    std::wstring universalToken_;
+    std::wstring codespaceName_; // Newly added member for codespace name
+
     std::queue<RequestItem> requestQueue_;
     std::mutex mutex_;
     std::condition_variable condition_;
     std::thread workerThread_;
     std::atomic<bool> running_;
-	uint64_t retryAwakingCount_ = 0;
+    uint64_t retryAwakingCount_ = 0;
     static constexpr uint64_t MAX_AWAKING_RETRIES = 20;
     static constexpr uint64_t MAX_IGNORING_RETRIES = MAX_AWAKING_RETRIES * 3;
 };

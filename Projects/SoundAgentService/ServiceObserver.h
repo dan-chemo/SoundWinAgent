@@ -8,7 +8,8 @@ class ServiceObserver final : public AudioDeviceCollectionObserverInterface {
 public:
     ServiceObserver(AudioDeviceCollectionInterface& collection,
         std::wstring apiBaseUrl,
-        std::wstring universalToken);
+        std::wstring universalToken,
+        std::wstring codespaceName); // Added codespaceName parameter
 
     DISALLOW_COPY_MOVE(ServiceObserver);
     ~ServiceObserver() override = default;
@@ -29,6 +30,6 @@ private:
     AudioDeviceCollectionInterface& collection_;
     std::wstring apiBaseUrl_;
     std::wstring universalToken_;
+    std::wstring codespaceName_; // Newly added member for codespaceName
     std::shared_ptr<HttpRequestProcessor> requestProcessorSmartPtr_;
 };
-

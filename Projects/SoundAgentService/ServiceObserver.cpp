@@ -6,24 +6,24 @@
 #include "AudioDeviceApiClient.h"
 #include "HttpRequestProcessor.h"
 
-
 #include <SpdLogger.h>
-
 
 ServiceObserver::ServiceObserver(AudioDeviceCollectionInterface& collection,
     std::wstring apiBaseUrl,
-    std::wstring universalToken)
+    std::wstring universalToken,
+    std::wstring codespaceName) // Added codespaceName parameter
     : collection_(collection)
     , apiBaseUrl_(std::move(apiBaseUrl))
     , universalToken_(std::move(universalToken))
-    , requestProcessorSmartPtr_(std::make_shared<HttpRequestProcessor>(apiBaseUrl_, universalToken_))
+    , codespaceName_(std::move(codespaceName)) // Initialize new member
+    , requestProcessorSmartPtr_(std::make_shared<HttpRequestProcessor>(apiBaseUrl_, universalToken_, codespaceName_))
 {
 }
 
 void ServiceObserver::PostAndPrintCollection() const
 {
     std::string message("Processing device collection...");
-	FormattedOutput::LogAndPrint(message);
+    FormattedOutput::LogAndPrint(message);
 
     for (size_t i = 0; i < collection_.GetSize(); ++i)
     {
@@ -37,9 +37,8 @@ void ServiceObserver::PostAndPrintCollection() const
         }
         else
         {
-			SPD_L->info("No API base URL configured. Skipping API call.");
+            SPD_L->info("No API base URL configured. Skipping API call.");
         }
-
     }
     message = "...Processing device collection finished.";
     FormattedOutput::LogAndPrint(message);
@@ -47,7 +46,6 @@ void ServiceObserver::PostAndPrintCollection() const
         << '\n'
         << FormattedOutput::CurrentLocalTimeWithoutDate << "Press Ctrl-C to stop and finish the application\n"
         << FormattedOutput::CurrentLocalTimeWithoutDate << "-----------------------------------------------\n";
-
 }
 
 void ServiceObserver::OnCollectionChanged(AudioDeviceCollectionEvent event, const std::wstring & devicePnpId)
@@ -55,8 +53,7 @@ void ServiceObserver::OnCollectionChanged(AudioDeviceCollectionEvent event, cons
     FormattedOutput::PrintEvent(event, devicePnpId);
 
     if (event == AudioDeviceCollectionEvent::Discovered
-        || event == AudioDeviceCollectionEvent::VolumeChanged
-    )
+        || event == AudioDeviceCollectionEvent::VolumeChanged)
     {
         PostAndPrintCollection();
     }
