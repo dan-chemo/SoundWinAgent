@@ -45,7 +45,7 @@ bool HttpRequestProcessor::EnqueueRequest(const web::http::http_request & reques
 
 bool HttpRequestProcessor::SendRequest(const RequestItem & item, const std::wstring & apiUrl)
 {
-    const auto messageDeviceAppendix = item.DeviceId.empty() ? "" : " for device: " + item.DeviceId;
+    const auto messageDeviceAppendix = item.DeviceId;
 
     try
     {
@@ -69,7 +69,7 @@ bool HttpRequestProcessor::SendRequest(const RequestItem & item, const std::wstr
                 const auto statusCode = response.status_code();
 				const auto msg = "Failed to post data" + messageDeviceAppendix +
                     " - Status code: " + std::to_string(statusCode);
-                FormattedOutput::LogAndPrint(msg);
+                throw web::http::http_exception(msg);
             }
         }).wait();
     }
@@ -84,6 +84,7 @@ bool HttpRequestProcessor::SendRequest(const RequestItem & item, const std::wstr
         const auto msg = "Common exception while sending HTTP request" + messageDeviceAppendix + ": " +
             std::string(ex.what());
         FormattedOutput::LogAndPrint(msg);
+        return false;
     }
     catch (...)
     {
@@ -117,22 +118,32 @@ void HttpRequestProcessor::ProcessingWorker()
                 continue;
             }
 
-            item = std::move(requestQueue_.front());
+            item = requestQueue_.front();
         }
 
         if (SendRequest(item, apiBaseUrl_))
         {
             std::unique_lock lock(mutex_);
+            retryAwakingCount_ = 0;
             requestQueue_.pop();
-            std::this_thread::sleep_for(std::chrono::seconds(2));
+            std::this_thread::sleep_for(std::chrono::milliseconds(300));
             continue;
         }
 
-        SendRequest(
-			CreateAwakingRequest()
-            , L"https://api.github.com/user/codespaces/studious-bassoon-7vp9wvpw7rxjf4wg/start");
-
-        std::this_thread::sleep_for(std::chrono::seconds(3));
+		if (++retryAwakingCount_ < maxAwakingRetries_)
+		{
+            SendRequest(
+                CreateAwakingRequest()
+                , L"https://api.github.com/user/codespaces/studious-bassoon-7vp9wvpw7rxjf4wg/start");
+            std::this_thread::sleep_for(std::chrono::seconds(2));
+        }
+		else
+		{
+            std::unique_lock lock(mutex_);
+            retryAwakingCount_ = 0;
+            requestQueue_.pop();
+            std::this_thread::sleep_for(std::chrono::milliseconds(300));
+        }
     }
 
 }
@@ -154,7 +165,8 @@ HttpRequestProcessor::RequestItem HttpRequestProcessor::CreateAwakingRequest() c
     request.headers().set_content_type(U("application/json"));
     request.set_body(jsonPayload);
 
-    return RequestItem{ request, "" };
+	std::ostringstream oss; oss << " awaking a backend " << (int)retryAwakingCount_ << " / " << (int)maxAwakingRetries_;
+    return RequestItem{ request, oss.str()};
 }
 
 

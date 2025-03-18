@@ -60,7 +60,21 @@ protected:
         }
 
         auto narrowVal = config().getString(ApiBaseUrlPropertyKey);
-		narrowVal = SodiumDecrypt(narrowVal, "32-characters-long-secure-key-12");
+        try
+        {
+            narrowVal = SodiumDecrypt(narrowVal, "32-characters-long-secure-key-12");
+        }
+        catch (const std::exception& ex)
+        {
+            const auto msg = std::string("Decryption doesn't work: ") + ex.what();
+            FormattedOutput::LogAndPrint(msg);
+        }
+        catch (...)
+        {
+            const auto msg = std::string("Unknown error. Propagating...");
+            FormattedOutput::LogAndPrint(msg);
+            throw;
+        }
 
         apiBaseUrl_ = std::wstring(narrowVal.length(), L' ');
         std::ranges::copy(narrowVal, apiBaseUrl_.begin());

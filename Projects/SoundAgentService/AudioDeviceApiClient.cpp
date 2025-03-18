@@ -62,7 +62,7 @@ void AudioDeviceApiClient::PostDeviceToApi(const SoundDeviceInterface * device) 
     SPD_L->info("Enqueueing request for device: {}...", pnpIdUtf8);
 
     // Instead of sending directly, enqueue the request in the processor
-    if(requestProcessor_->EnqueueRequest(request, pnpIdUtf8))
+    if(requestProcessor_->EnqueueRequest(request, std::string(" for device: ") + pnpIdUtf8))
     {
 		FormattedOutput::LogAndPrint("Device data enqueued for: " + pnpIdUtf8);
 	}
