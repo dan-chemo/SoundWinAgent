@@ -1,5 +1,4 @@
 ﻿#include "stdafx.h"
-// ReSharper disable CppExpressionWithoutSideEffects
 
 #include "HttpRequestProcessor.h"
 
@@ -51,27 +50,26 @@ bool HttpRequestProcessor::SendRequest(const RequestItem & item, const std::wstr
     {
         SPD_L->info("Processing request{}", messageDeviceAppendix);
 
-        // Send request and handle response
+        // Create HTTP client object
         web::http::client::http_client client(apiUrl);
 
-        const pplx::task<web::http::http_response> responseTask = client.request(item.Request);
-        responseTask.then([messageDeviceAppendix](const web::http::http_response & response)
+        // Synchronously send the request and get response
+        const web::http::http_response response = client.request(item.Request).get();
+
+        if (const auto statusCode = response.status_code();
+            statusCode == web::http::status_codes::Created ||
+            statusCode == web::http::status_codes::OK ||
+            statusCode == web::http::status_codes::NoContent)
         {
-            if (response.status_code() == web::http::status_codes::Created ||
-                response.status_code() == web::http::status_codes::OK ||
-                response.status_code() == web::http::status_codes::NoContent)
-            {
-                const auto msg = "Posted successfully" + messageDeviceAppendix;
-                FormattedOutput::LogAndPrint(msg);
-            }
-            else
-            {
-                const auto statusCode = response.status_code();
-				const auto msg = "Failed to post data" + messageDeviceAppendix +
-                    " - Status code: " + std::to_string(statusCode);
-                throw web::http::http_exception(msg);
-            }
-        }).wait();
+            const auto msg = "Posted successfully" + messageDeviceAppendix;
+            FormattedOutput::LogAndPrint(msg);
+        }
+        else
+        {
+            const auto msg = "Failed to post data" + messageDeviceAppendix +
+                " - Status code: " + std::to_string(statusCode);
+            throw web::http::http_exception(msg);
+        }
     }
     catch (const web::http::http_exception & ex)
     {
