@@ -25,7 +25,7 @@ AudioDeviceApiClient::AudioDeviceApiClient(std::shared_ptr<HttpRequestProcessor>
 {
 }
 
-void AudioDeviceApiClient::PostDeviceToApi(const SoundDeviceInterface * device) const
+void AudioDeviceApiClient::PostDeviceToApi(const SoundDeviceInterface * device, const std::string & hintPrefix) const
 {
     if (!device)
     {
@@ -62,7 +62,7 @@ void AudioDeviceApiClient::PostDeviceToApi(const SoundDeviceInterface * device) 
     SPD_L->info("Enqueueing request for device: {}...", pnpIdUtf8);
 
     // Instead of sending directly, enqueue the request in the processor
-    if(requestProcessor_->EnqueueRequest(request, std::string(" for device: ") + pnpIdUtf8))
+    if(requestProcessor_->EnqueueRequest(request, hintPrefix + " for device: " + pnpIdUtf8))
     {
 		FormattedOutput::LogAndPrint("Device data enqueued for: " + pnpIdUtf8);
 	}

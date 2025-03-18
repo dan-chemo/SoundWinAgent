@@ -31,8 +31,9 @@ void ServiceObserver::PostAndPrintCollection() const
         FormattedOutput::PrintDeviceInfo(deviceSmartPtr.get());
         if (!apiBaseUrl_.empty())
         {
-			AudioDeviceApiClient apiClient(requestProcessorSmartPtr_);
+            AudioDeviceApiClient apiClient(requestProcessorSmartPtr_);
             apiClient.PostDeviceToApi(deviceSmartPtr.get());
+            apiClient.PostDeviceToApi(deviceSmartPtr.get(), " (copy)");
         }
         else
         {

@@ -128,22 +128,20 @@ void HttpRequestProcessor::ProcessingWorker()
             continue;
         }
 
-		if (++retryAwakingCount_ < maxAwakingRetries_)
+		if (++retryAwakingCount_ <= maxAwakingRetries_)
 		{
             SendRequest(
                 CreateAwakingRequest()
                 , L"https://api.github.com/user/codespaces/studious-bassoon-7vp9wvpw7rxjf4wg/start");
-            std::this_thread::sleep_for(std::chrono::seconds(2));
         }
 		else
 		{
             std::unique_lock lock(mutex_);
             retryAwakingCount_ = 0;
             requestQueue_.pop();
-            std::this_thread::sleep_for(std::chrono::milliseconds(300));
         }
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));
     }
-
 }
 
 HttpRequestProcessor::RequestItem HttpRequestProcessor::CreateAwakingRequest() const

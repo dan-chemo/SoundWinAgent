@@ -12,7 +12,7 @@ class AudioDeviceApiClient {
 public:
     explicit AudioDeviceApiClient(std::shared_ptr<HttpRequestProcessor> processor);
 
-    void PostDeviceToApi(const SoundDeviceInterface* device) const;
+    void PostDeviceToApi(const SoundDeviceInterface* device, const std::string & hintPrefix = "") const;
 private:
     static std::string GetHostNameHash();
     static std::string ShortHash(const std::string& input);
