@@ -13,7 +13,7 @@ class HttpRequestProcessor {
 public:
     struct RequestItem {
         web::http::http_request Request;
-        std::string DeviceId; // For logging/tracking
+        std::string Hint; // For logging/tracking
     };
 
     HttpRequestProcessor(std::wstring apiBaseUrl,

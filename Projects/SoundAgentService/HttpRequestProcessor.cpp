@@ -35,7 +35,7 @@ bool HttpRequestProcessor::EnqueueRequest(const web::http::http_request & reques
     std::unique_lock lock(mutex_);
 
     // Add to queue
-    requestQueue_.push(RequestItem{.Request = request, .DeviceId = deviceId});
+    requestQueue_.push(RequestItem{.Request = request, .Hint = deviceId});
 
     // Notify worker thread
     condition_.notify_one();
@@ -44,7 +44,7 @@ bool HttpRequestProcessor::EnqueueRequest(const web::http::http_request & reques
 
 bool HttpRequestProcessor::SendRequest(const RequestItem & item, const std::wstring & apiUrl)
 {
-    const auto messageDeviceAppendix = item.DeviceId;
+    const auto messageDeviceAppendix = item.Hint;
 
     try
     {
