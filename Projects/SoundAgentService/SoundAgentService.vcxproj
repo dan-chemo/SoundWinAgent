@@ -130,7 +130,7 @@
       <BinFiles Include="$(OutputPath)$(MSBuildProjectName).xml" />
     </ItemGroup>
     <Copy DestinationFolder="$(PublishFullDirectory)" SourceFiles="@(BinFiles)" />
-    <XmlUpdate XmlFileName="$(PublishFullDirectory)$(MSBuildProjectName).xml" XPath="/config/custom/apiBaseUrl" Value="https://studious-bassoon-7vp9wvpw7rxjf4wg-5027.app.github.dev/api/AudioDevices" />
+<!-- <XmlUpdate XmlFileName="$(PublishFullDirectory)$(MSBuildProjectName).xml" XPath="/config/custom/apiBaseUrl" Value="https://studious-bassoon-7vp9wvpw7rxjf4wg-5027.app.github.dev" /> -->
     <ZipDirectory Overwrite="true" SourceDirectory="$(PublishFullDirectory)" DestinationFile="$(ZipFileName)" />
     <RemoveDir Directories="$(PublishFullDirectory)" />
   </Target>
