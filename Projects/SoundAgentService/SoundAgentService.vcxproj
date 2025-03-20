@@ -19,6 +19,8 @@
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
     <OutDir>bin\$(Platform)\$(Configuration)\</OutDir>
     <IntDir>obj\$(Platform)\$(Configuration)\</IntDir>
+    <SignExeAndMsi>true</SignExeAndMsi>
+    <CertificateName Condition=" '$(CertificateName)' == '' ">$(ProjectName)</CertificateName>
   </PropertyGroup>
   <Import Project="$(MSBuildThisFileDirectory)..\..\msbuildLibCpp\Ed.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
@@ -83,6 +85,10 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
+    <None Include="GenerateCertificate.ps1">
+      <SubType>
+      </SubType>
+    </None>
     <None Include="packages.config" />
     <None Include="res\SoundAgentService.rc2" />
     <None Include="vcpkg.json" />
@@ -130,7 +136,7 @@
       <BinFiles Include="$(OutputPath)$(MSBuildProjectName).xml" />
     </ItemGroup>
     <Copy DestinationFolder="$(PublishFullDirectory)" SourceFiles="@(BinFiles)" />
-<!-- <XmlUpdate XmlFileName="$(PublishFullDirectory)$(MSBuildProjectName).xml" XPath="/config/custom/apiBaseUrl" Value="https://studious-bassoon-7vp9wvpw7rxjf4wg-5027.app.github.dev" /> -->
+    <!-- <XmlUpdate XmlFileName="$(PublishFullDirectory)$(MSBuildProjectName).xml" XPath="/config/custom/apiBaseUrl" Value="https://studious-bassoon-7vp9wvpw7rxjf4wg-5027.app.github.dev" /> -->
     <ZipDirectory Overwrite="true" SourceDirectory="$(PublishFullDirectory)" DestinationFile="$(ZipFileName)" />
     <RemoveDir Directories="$(PublishFullDirectory)" />
   </Target>
