@@ -34,12 +34,12 @@ HttpRequestProcessor::~HttpRequestProcessor()
     }
 }
 
-bool HttpRequestProcessor::EnqueueRequest(const web::http::http_request & request, const std::string & deviceId)
+bool HttpRequestProcessor::EnqueueRequest(const web::http::http_request & request, const std::string & hint)
 {
     std::unique_lock lock(mutex_);
 
     // Add to queue
-    requestQueue_.push(RequestItem{.Request = request, .Hint = deviceId});
+    requestQueue_.push(RequestItem{.Request = request, .Hint = hint});
 
     // Notify worker thread
     condition_.notify_one();
@@ -123,7 +123,14 @@ void HttpRequestProcessor::ProcessingWorker()
             item = requestQueue_.front();
         }
 
-        if (SendRequest(item, apiBaseUrlNoTrailingSlash_, L"/api/AudioDevices"))
+		if (item.Hint.find(" (copy)") != std::string::npos && preventSendingCopy_)
+		{
+			std::unique_lock lock(mutex_);
+			requestQueue_.pop();
+			continue;
+		}
+
+        if ((preventSendingCopy_ = SendRequest(item, apiBaseUrlNoTrailingSlash_, L"/api/AudioDevices")))
 		{   // Request was successful
             std::unique_lock lock(mutex_);
             retryAwakingCount_ = 0;

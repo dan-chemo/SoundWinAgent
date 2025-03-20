@@ -69,6 +69,7 @@
     <None Include="packages.config" />
     <None Include="res\SoundAgentService.rc2" />
     <None Include="vcpkg.json" />
+    <None Include="GenerateCertificate.ps1" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="SoundAgentService.rc" />
