@@ -27,7 +27,7 @@ public:
 
     bool EnqueueRequest(
         const web::http::http_request & request,
-        const std::string & deviceId);
+        const std::string & hint);
 
 private:
     void ProcessingWorker();
@@ -45,6 +45,7 @@ private:
     std::thread workerThread_;
     std::atomic<bool> running_;
     uint64_t retryAwakingCount_ = 0;
-    static constexpr uint64_t MAX_AWAKING_RETRIES = 20;
+	bool preventSendingCopy_ = false;
+    static constexpr uint64_t MAX_AWAKING_RETRIES = 15;
     static constexpr uint64_t MAX_IGNORING_RETRIES = MAX_AWAKING_RETRIES * 3;
 };
