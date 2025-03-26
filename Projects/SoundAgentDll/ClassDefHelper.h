@@ -28,7 +28,7 @@
 #ifndef AS_INTERFACE
 #define AS_INTERFACE(TypeName) \
 public: \
-  virtual ~##TypeName () = default; \
+  virtual ~ TypeName () = default; \
 protected: \
 	TypeName () = default
 #endif // AS_INTERFACE
