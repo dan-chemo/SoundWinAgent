@@ -8,7 +8,7 @@
 
 #include <SpdLogger.h>
 
-ServiceObserver::ServiceObserver(AudioDeviceCollectionInterface& collection,
+ServiceObserver::ServiceObserver(SoundDeviceCollectionInterface& collection,
     std::wstring apiBaseUrl,
     std::wstring universalToken,
     std::wstring codespaceName) // Added codespaceName parameter
@@ -48,12 +48,12 @@ void ServiceObserver::PostAndPrintCollection() const
         << FormattedOutput::CurrentLocalTimeWithoutDate << "-----------------------------------------------\n";
 }
 
-void ServiceObserver::OnCollectionChanged(AudioDeviceCollectionEvent event, const std::wstring & devicePnpId)
+void ServiceObserver::OnCollectionChanged(SoundDeviceEventType event, const std::wstring & devicePnpId)
 {
     FormattedOutput::PrintEvent(event, devicePnpId);
 
-    if (event == AudioDeviceCollectionEvent::Discovered
-        || event == AudioDeviceCollectionEvent::VolumeChanged)
+    if (event == SoundDeviceEventType::Discovered
+        || event == SoundDeviceEventType::VolumeChanged)
     {
         PostAndPrintCollection();
     }

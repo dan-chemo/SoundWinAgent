@@ -5,12 +5,12 @@
 ed::audio::SoundDevice::~SoundDevice() = default;
 
 ed::audio::SoundDevice::SoundDevice()
-    : SoundDevice(L"", L"", DeviceFlowEnum::None, 0, 0)
+    : SoundDevice(L"", L"", SoundDeviceFlowType::None, 0, 0)
 {
 }
 
 // ReSharper disable once CppParameterMayBeConst
-ed::audio::SoundDevice::SoundDevice(std::wstring pnpGuid, std::wstring name, DeviceFlowEnum flow, uint16_t renderVolume,
+ed::audio::SoundDevice::SoundDevice(std::wstring pnpGuid, std::wstring name, SoundDeviceFlowType flow, uint16_t renderVolume,
                           uint16_t captureVolume)
     : pnpGuid_(std::move(pnpGuid))
       , name_(std::move(name))
@@ -74,7 +74,7 @@ std::wstring ed::audio::SoundDevice::GetPnpId() const
     return pnpGuid_;
 }
 
-DeviceFlowEnum ed::audio::SoundDevice::GetFlow() const
+SoundDeviceFlowType ed::audio::SoundDevice::GetFlow() const
 {
     return flow_;
 }

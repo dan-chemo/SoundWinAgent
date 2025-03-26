@@ -4,9 +4,9 @@
 
 class HttpRequestProcessor;
 
-class ServiceObserver final : public AudioDeviceCollectionObserverInterface {
+class ServiceObserver final : public SoundDeviceObserverInterface {
 public:
-    ServiceObserver(AudioDeviceCollectionInterface& collection,
+    ServiceObserver(SoundDeviceCollectionInterface& collection,
         std::wstring apiBaseUrl,
         std::wstring universalToken,
         std::wstring codespaceName); // Added codespaceName parameter
@@ -17,7 +17,7 @@ public:
 public:
     void PostAndPrintCollection() const;
 
-    void OnCollectionChanged(AudioDeviceCollectionEvent event, const std::wstring& devicePnpId) override;
+    void OnCollectionChanged(SoundDeviceEventType event, const std::wstring& devicePnpId) override;
 
     void OnTrace(const std::wstring& line) override;
 
@@ -27,7 +27,7 @@ public:
     }
 
 private:
-    AudioDeviceCollectionInterface& collection_;
+    SoundDeviceCollectionInterface& collection_;
     std::wstring apiBaseUrl_;
     std::wstring universalToken_;
     std::wstring codespaceName_; // Newly added member for codespaceName

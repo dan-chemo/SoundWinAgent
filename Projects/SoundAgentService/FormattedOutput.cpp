@@ -29,7 +29,7 @@ void FormattedOutput::LogAsErrorPrintAndThrow(const std::string & mess)
 	throw std::runtime_error(mess);
 }
 
-void FormattedOutput::PrintEvent(AudioDeviceCollectionEvent event, const std::wstring & devicePnpId)
+void FormattedOutput::PrintEvent(SoundDeviceEventType event, const std::wstring & devicePnpId)
 {
     std::wostringstream wos; wos << L"Event caught: " << ed::GetDeviceCollectionEventAsString(event) << L"."
         << L" Device PnP id: " << devicePnpId << L'\n';

@@ -16,7 +16,7 @@ namespace ed::audio {
 using EndPointVolumeSmartPtr = CComPtr<IAudioEndpointVolume>;
 
 
-class SoundDeviceCollection final : public AudioDeviceCollectionInterface, protected MultipleNotificationClient {
+class SoundDeviceCollection final : public SoundDeviceCollectionInterface, protected MultipleNotificationClient {
 protected:
     using TPnPIdToDeviceMap = std::map<std::wstring, SoundDevice>;
     using ProcessDeviceFunctionT =
@@ -31,8 +31,8 @@ public:
 
     [[nodiscard]] size_t GetSize() const override;
     [[nodiscard]] std::unique_ptr<SoundDeviceInterface> CreateItem(size_t deviceNumber) const override;
-    void Subscribe(AudioDeviceCollectionObserverInterface & observer) override;
-    void Unsubscribe(AudioDeviceCollectionObserverInterface & observer) override;
+    void Subscribe(SoundDeviceObserverInterface & observer) override;
+    void Unsubscribe(SoundDeviceObserverInterface & observer) override;
 
 public:
     HRESULT OnDeviceAdded(LPCWSTR deviceId) override;
@@ -48,7 +48,7 @@ private:
     static void UpdateDeviceVolume(SoundDeviceCollection* self, const std::wstring& deviceId, const SoundDevice& device, EndPointVolumeSmartPtr);
 
 
-    void NotifyObservers(AudioDeviceCollectionEvent action, const std::wstring & devicePNpId) const;
+    void NotifyObservers(SoundDeviceEventType action, const std::wstring & devicePNpId) const;
     [[nodiscard]] bool IsDeviceApplicable(const SoundDevice & device) const;
     bool TryCreateDeviceAndGetVolumeEndpoint(ULONG i,
                                              CComPtr<IMMDevice> deviceEndpointSmartPtr,
@@ -79,7 +79,7 @@ public:
 
 private:
     std::map<std::wstring, SoundDevice> pnpToDeviceMap_;
-    std::set<AudioDeviceCollectionObserverInterface*> observers_;
+    std::set<SoundDeviceObserverInterface*> observers_;
     IMMDeviceEnumerator * enumerator_ = nullptr;
     std::wstring nameFilter_;
     bool bothHeadsetAndMicro_;

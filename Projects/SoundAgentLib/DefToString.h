@@ -29,27 +29,27 @@ std::wstring GetEDataFlowAsString(T v)
     }
 }
 
-inline std::wstring GetFlowAsString(DeviceFlowEnum v)
+inline std::wstring GetFlowAsString(SoundDeviceFlowType v)
 {
     switch (v)
     {
-    COMMAND_CASE2(DeviceFlowEnum, Render)
-    COMMAND_CASE2(DeviceFlowEnum, Capture)
-    COMMAND_CASE2(DeviceFlowEnum, RenderAndCapture)
-    case DeviceFlowEnum::None:
+    COMMAND_CASE2(SoundDeviceFlowType, Render)
+    COMMAND_CASE2(SoundDeviceFlowType, Capture)
+    COMMAND_CASE2(SoundDeviceFlowType, RenderAndCapture)
+    case SoundDeviceFlowType::None:
     default: // NOLINT(clang-diagnostic-covered-switch-default)
         return L"Unknown flow";
     }
 }
 
-inline std::wstring GetDeviceCollectionEventAsString(AudioDeviceCollectionEvent v)
+inline std::wstring GetDeviceCollectionEventAsString(SoundDeviceEventType v)
 {
     switch (v)
     {
-    COMMAND_CASE2(AudioDeviceCollectionEvent, Discovered)
-    COMMAND_CASE2(AudioDeviceCollectionEvent, Detached)
-    COMMAND_CASE2(AudioDeviceCollectionEvent, VolumeChanged)
-    case AudioDeviceCollectionEvent::None:
+    COMMAND_CASE2(SoundDeviceEventType, Discovered)
+    COMMAND_CASE2(SoundDeviceEventType, Detached)
+    COMMAND_CASE2(SoundDeviceEventType, VolumeChanged)
+    case SoundDeviceEventType::None:
     default: // NOLINT(clang-diagnostic-covered-switch-default)
         return L"Unknown event";
     }

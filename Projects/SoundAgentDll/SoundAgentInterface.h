@@ -11,28 +11,28 @@
 
 #include "ClassDefHelper.h"
 
-class AudioDeviceCollectionInterface;
+class SoundDeviceCollectionInterface;
 class DeviceCollectionObserver;
 class SoundDeviceInterface;
-class AudioDeviceCollectionObserverInterface;
+class SoundDeviceObserverInterface;
 
-enum class AC_EXPORT_IMPORT_DECL AudioDeviceCollectionEvent : uint8_t {
+enum class AC_EXPORT_IMPORT_DECL SoundDeviceEventType : uint8_t {
     None = 0,
     Discovered,
     Detached,
     VolumeChanged
 };
 
-enum class AC_EXPORT_IMPORT_DECL DeviceFlowEnum : uint8_t {
+enum class AC_EXPORT_IMPORT_DECL SoundDeviceFlowType : uint8_t {
     None = 0,
     Render,
     Capture,
     RenderAndCapture
 };
 
-class AC_EXPORT_IMPORT_DECL SoundAgent {
+class AC_EXPORT_IMPORT_DECL SoundAgent final {
 public:
-    static std::unique_ptr<AudioDeviceCollectionInterface> CreateDeviceCollection(
+    static std::unique_ptr<SoundDeviceCollectionInterface> CreateDeviceCollection(
         const std::wstring & nameFilter, bool bothHeadsetAndMicro = false);
 
     DISALLOW_COPY_MOVE(SoundAgent);
@@ -40,28 +40,28 @@ public:
     ~SoundAgent() = delete;
 };
 
-class AC_EXPORT_IMPORT_DECL AudioDeviceCollectionInterface {
+class AC_EXPORT_IMPORT_DECL SoundDeviceCollectionInterface {
 public:
     virtual size_t GetSize() const = 0;
     virtual std::unique_ptr<SoundDeviceInterface> CreateItem(size_t deviceNumber) const = 0;
 
-    virtual void Subscribe(AudioDeviceCollectionObserverInterface & observer) = 0;
-    virtual void Unsubscribe(AudioDeviceCollectionObserverInterface & observer) = 0;
+    virtual void Subscribe(SoundDeviceObserverInterface & observer) = 0;
+    virtual void Unsubscribe(SoundDeviceObserverInterface & observer) = 0;
 
     virtual void ResetContent() = 0;
 
-    AS_INTERFACE(AudioDeviceCollectionInterface);
-    DISALLOW_COPY_MOVE(AudioDeviceCollectionInterface);
+    AS_INTERFACE(SoundDeviceCollectionInterface);
+    DISALLOW_COPY_MOVE(SoundDeviceCollectionInterface);
 };
 
-class AC_EXPORT_IMPORT_DECL AudioDeviceCollectionObserverInterface {
+class AC_EXPORT_IMPORT_DECL SoundDeviceObserverInterface {
 public:
-    virtual void OnCollectionChanged(AudioDeviceCollectionEvent event, const std::wstring & devicePnpId) = 0;
+    virtual void OnCollectionChanged(SoundDeviceEventType event, const std::wstring & devicePnpId) = 0;
     virtual void OnTrace(const std::wstring & line) = 0;
     virtual void OnTraceDebug(const std::wstring & line) = 0;
 
-    AS_INTERFACE(AudioDeviceCollectionObserverInterface);
-    DISALLOW_COPY_MOVE(AudioDeviceCollectionObserverInterface);
+    AS_INTERFACE(SoundDeviceObserverInterface);
+    DISALLOW_COPY_MOVE(SoundDeviceObserverInterface);
 };
 
 
@@ -69,8 +69,8 @@ class AC_EXPORT_IMPORT_DECL SoundDeviceInterface {
 public:
     virtual std::wstring GetName() const = 0;
     virtual std::wstring GetPnpId() const = 0;
-    virtual DeviceFlowEnum GetFlow() const = 0;
-    virtual uint16_t GetCurrentRenderVolume() const = 0;
+    virtual SoundDeviceFlowType GetFlow() const = 0;
+    virtual uint16_t GetCurrentRenderVolume() const = 0; // 0 to 1000
     virtual uint16_t GetCurrentCaptureVolume() const = 0;
 
     AS_INTERFACE(SoundDeviceInterface);
