@@ -141,7 +141,7 @@ void HttpRequestProcessor::ProcessingWorker()
 
         if (apiBaseUrlNoTrailingSlash_.find(L".github.") == std::wstring::npos)
         {// NOT  a GitHub Codespace, no wake up
-            const auto msg = std::wstring(L"The expected REST server \"") + apiBaseUrlNoTrailingSlash_ + L"\" is not on GitHub codespace. Please start it";
+            const auto msg = std::wstring(L"No connection to the expected REST server \"") + apiBaseUrlNoTrailingSlash_ + L"\".";
 			FormattedOutput::LogAndPrint(msg);
 
 			std::unique_lock lock(mutex_);
