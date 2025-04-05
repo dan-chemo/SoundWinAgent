@@ -3,7 +3,7 @@
 
 #include "AudioDeviceApiClient.h"
 
-#include "../SoundAgentDll/SoundAgentInterface.h"
+#include <public/SoundAgentInterface.h>
 
 #include <SpdLogger.h>
 

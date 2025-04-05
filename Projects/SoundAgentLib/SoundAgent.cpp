@@ -1,7 +1,4 @@
 ﻿#include "stdafx.h"
-#include "SoundAgentInterface.h"
-
-#include <stdexcept>
 
 #include "SoundDeviceCollection.h"
 

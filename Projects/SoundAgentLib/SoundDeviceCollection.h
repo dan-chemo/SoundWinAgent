@@ -5,7 +5,7 @@
 #include <atlbase.h>
 #include <functional>
 
-#include "../SoundAgentDll/SoundAgentInterface.h"
+#include "public/SoundAgentInterface.h"
 
 #include "SoundDevice.h"
 

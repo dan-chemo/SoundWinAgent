@@ -3,7 +3,7 @@
 #include <string>
 #include <mmdeviceapi.h>
 
-#include "../SoundAgentDll/SoundAgentInterface.h"
+#include "SoundAgentInterface.h"
 
 
 #ifndef COMMAND_CASE

@@ -4,9 +4,9 @@
 
 #include <CppUnitTest.h>
 
-#include "../SoundAgentDll/SoundAgentInterface.h"
+#include <public/SoundAgentInterface.h>
 #include "SoundDevice.h"
-#include "../SoundAgentLib/generate-uuid.h"
+#include <public/generate-uuid.h>
 #include "CaseInsensitiveSubstr.h"
 
 using namespace std::literals::string_literals;

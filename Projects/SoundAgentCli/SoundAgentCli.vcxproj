@@ -49,7 +49,7 @@
   <ItemDefinitionGroup>
     <ClCompile>
       <PreprocessorDefinitions>WIN32;_SILENCE_ALL_CXX17_DEPRECATION_WARNINGS;_SILENCE_STDEXT_ARR_ITERS_DEPRECATION_WARNING;SPDLOG_FMT_PRINTF;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>.;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.;$(SolutionDir)Projects\SoundAgentLib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <!-- Enable release-version debugging (optimization off, etc.) -->
       <Optimization Condition="'$(Configuration)'=='Release'">Disabled</Optimization>
@@ -64,6 +64,12 @@
       <OptimizeReferences Condition="'$(Configuration)'=='Release'" />
       <EnableCOMDATFolding Condition="'$(Configuration)'=='Release'" />
       <LinkTimeCodeGeneration Condition="'$(Configuration)'=='Release'" />
+      <AdditionalLibraryDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(SolutionDir)\x64\$(Configuration);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(SolutionDir)\x64\$(Configuration);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+      </AdditionalDependencies>
+      <AdditionalDependencies Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+      </AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -87,8 +93,8 @@
     <ResourceCompile Include="SoundAgentCli.rc" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\SoundAgentDll\SoundAgentDll.vcxproj">
-      <Project>{92afad2a-a573-4239-80dc-4cdc28fd3a7e}</Project>
+    <ProjectReference Include="..\SoundAgentLib\SoundAgentLib.vcxproj">
+      <Project>{6c0fc8c3-0967-4e1c-be3a-80ecb2140c20}</Project>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildThisFileDirectory)..\..\msbuildLibCpp\Ed.Cpp.targets" />

@@ -1,12 +1,6 @@
 ﻿// ReSharper disable CppClangTidyModernizeUseNodiscard
 #pragma once
 
-#ifdef AC_EXPORTS
-#define AC_EXPORT_IMPORT_DECL __declspec(dllexport)
-#else
-#define AC_EXPORT_IMPORT_DECL __declspec(dllimport)
-#endif
-
 #include <memory>
 
 #include "ClassDefHelper.h"
@@ -16,21 +10,21 @@ class DeviceCollectionObserver;
 class SoundDeviceInterface;
 class SoundDeviceObserverInterface;
 
-enum class AC_EXPORT_IMPORT_DECL SoundDeviceEventType : uint8_t {
+enum class SoundDeviceEventType : uint8_t {
     None = 0,
     Discovered,
     Detached,
     VolumeChanged
 };
 
-enum class AC_EXPORT_IMPORT_DECL SoundDeviceFlowType : uint8_t {
+enum class SoundDeviceFlowType : uint8_t {
     None = 0,
     Render,
     Capture,
     RenderAndCapture
 };
 
-class AC_EXPORT_IMPORT_DECL SoundAgent final {
+class SoundAgent final {
 public:
     static std::unique_ptr<SoundDeviceCollectionInterface> CreateDeviceCollection(
         const std::wstring & nameFilter, bool bothHeadsetAndMicro = false);
@@ -40,7 +34,7 @@ public:
     ~SoundAgent() = delete;
 };
 
-class AC_EXPORT_IMPORT_DECL SoundDeviceCollectionInterface {
+class SoundDeviceCollectionInterface {
 public:
     virtual size_t GetSize() const = 0;
     virtual std::unique_ptr<SoundDeviceInterface> CreateItem(size_t deviceNumber) const = 0;
@@ -54,7 +48,7 @@ public:
     DISALLOW_COPY_MOVE(SoundDeviceCollectionInterface);
 };
 
-class AC_EXPORT_IMPORT_DECL SoundDeviceObserverInterface {
+class SoundDeviceObserverInterface {
 public:
     virtual void OnCollectionChanged(SoundDeviceEventType event, const std::wstring & devicePnpId) = 0;
     virtual void OnTrace(const std::wstring & line) = 0;
@@ -65,7 +59,7 @@ public:
 };
 
 
-class AC_EXPORT_IMPORT_DECL SoundDeviceInterface {
+class SoundDeviceInterface {
 public:
     virtual std::wstring GetName() const = 0;
     virtual std::wstring GetPnpId() const = 0;

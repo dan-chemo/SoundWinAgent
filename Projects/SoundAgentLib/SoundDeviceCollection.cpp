@@ -15,8 +15,8 @@
 #include <valarray>
 #include <magic_enum_iostream.hpp>
 
-#include "DefToString.h"
-#include "generate-uuid.h"
+#include "public/DefToString.h"
+#include "public/generate-uuid.h"
 #include "Utilities.h"
 #include "CaseInsensitiveSubstr.h"
 

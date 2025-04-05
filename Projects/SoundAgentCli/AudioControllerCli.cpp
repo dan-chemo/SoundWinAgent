@@ -7,9 +7,9 @@
 #include <memory>
 #include <tchar.h>
 
-#include "../SoundAgentLib/CoInitRaiiHelper.h"
-#include "../SoundAgentDll/SoundAgentInterface.h"
-#include "../SoundAgentLib/DefToString.h"
+#include <public/CoInitRaiiHelper.h>
+#include <public/SoundAgentInterface.h>
+#include <public/DefToString.h>
 #include "TimeUtils.h" // Include the header for TimeUtils
 
 namespace

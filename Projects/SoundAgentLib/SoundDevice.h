@@ -2,7 +2,7 @@
 
 #include <string>
 
-#include "../SoundAgentDll/SoundAgentInterface.h"
+#include "public/SoundAgentInterface.h"
 
 namespace ed::audio {
 class SoundDevice final : public SoundDeviceInterface {

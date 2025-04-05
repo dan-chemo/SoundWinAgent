@@ -1,6 +1,6 @@
 ﻿#pragma once
 
-#include "../SoundAgentDll/SoundAgentInterface.h"
+#include <public/SoundAgentInterface.h>
 
 
 class FormattedOutput final

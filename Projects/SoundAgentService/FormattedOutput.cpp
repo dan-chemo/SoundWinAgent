@@ -4,8 +4,8 @@
 
 #include <TimeUtils.h>
 
-#include "../SoundAgentDll/ClassDefHelper.h"
-#include "../SoundAgentLib/DefToString.h"
+#include <public/ClassDefHelper.h>
+#include <public/DefToString.h>
 
 #include <SpdLogger.h>
 
