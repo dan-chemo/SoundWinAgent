@@ -38,6 +38,7 @@ class SoundDeviceCollectionInterface {
 public:
     virtual size_t GetSize() const = 0;
     virtual std::unique_ptr<SoundDeviceInterface> CreateItem(size_t deviceNumber) const = 0;
+    virtual std::unique_ptr<SoundDeviceInterface> CreateItem(const std::wstring& devicePnpId) const = 0;
 
     virtual void Subscribe(SoundDeviceObserverInterface & observer) = 0;
     virtual void Unsubscribe(SoundDeviceObserverInterface & observer) = 0;

@@ -84,6 +84,16 @@ std::unique_ptr<SoundDeviceInterface> ed::audio::SoundDeviceCollection::CreateIt
     throw std::runtime_error("Device number not found");
 }
 
+std::unique_ptr<SoundDeviceInterface> ed::audio::SoundDeviceCollection::CreateItem(
+    const std::wstring & devicePnpId) const
+{
+	if (!pnpToDeviceMap_.contains(devicePnpId))
+	{
+		throw std::runtime_error("Device pnpId not found");
+	}
+	return std::make_unique<SoundDevice>(pnpToDeviceMap_.at(devicePnpId));
+}
+
 void ed::audio::SoundDeviceCollection::Subscribe(SoundDeviceObserverInterface & observer)
 {
     observers_.insert(&observer);
@@ -97,7 +107,7 @@ void ed::audio::SoundDeviceCollection::Unsubscribe(SoundDeviceObserverInterface 
 
 bool ed::audio::SoundDeviceCollection::TryCreateDeviceAndGetVolumeEndpoint(
     ULONG i,
-    CComPtr<IMMDevice> deviceEndpointSmartPtr,
+    CComPtr<IMMDevice> deviceEndpointSmartPtr,  // NOLINT(performance-unnecessary-value-param)
     SoundDevice & device,
     std::wstring & deviceId,
     EndPointVolumeSmartPtr & outVolumeEndpoint

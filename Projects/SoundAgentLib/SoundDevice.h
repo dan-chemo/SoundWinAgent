@@ -11,7 +11,7 @@ public:
 
 public:
     SoundDevice();
-    SoundDevice(std::wstring pnpGuid, std::wstring name, SoundDeviceFlowType flow, uint16_t renderVolume, uint16_t captureVolume);
+    SoundDevice(std::wstring pnpId, std::wstring name, SoundDeviceFlowType flow, uint16_t renderVolume, uint16_t captureVolume);
     SoundDevice(const SoundDevice & toCopy);
     SoundDevice(SoundDevice && toMove) noexcept;
     SoundDevice & operator=(const SoundDevice & toCopy);
@@ -27,7 +27,7 @@ public:
     void SetCurrentCaptureVolume(uint16_t volume); // 0 to 1000
 
 private:
-    std::wstring pnpGuid_;
+    std::wstring pnpId_;
     std::wstring name_;
     SoundDeviceFlowType flow_;
     uint16_t renderVolume_; // 0 to 1000

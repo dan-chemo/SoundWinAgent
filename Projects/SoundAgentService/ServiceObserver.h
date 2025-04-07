@@ -11,6 +11,8 @@ public:
         std::wstring universalToken,
         std::wstring codespaceName); // Added codespaceName parameter
 
+    void PostToApi(SoundDeviceEventType messageType, const SoundDeviceInterface* devicePtr) const;
+
     DISALLOW_COPY_MOVE(ServiceObserver);
     ~ServiceObserver() override = default;
 

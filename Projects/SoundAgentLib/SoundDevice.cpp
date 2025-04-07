@@ -10,9 +10,9 @@ ed::audio::SoundDevice::SoundDevice()
 }
 
 // ReSharper disable once CppParameterMayBeConst
-ed::audio::SoundDevice::SoundDevice(std::wstring pnpGuid, std::wstring name, SoundDeviceFlowType flow, uint16_t renderVolume,
+ed::audio::SoundDevice::SoundDevice(std::wstring pnpId, std::wstring name, SoundDeviceFlowType flow, uint16_t renderVolume,
                           uint16_t captureVolume)
-    : pnpGuid_(std::move(pnpGuid))
+    : pnpId_(std::move(pnpId))
       , name_(std::move(name))
       , flow_(flow)
       , renderVolume_(renderVolume)
@@ -21,7 +21,7 @@ ed::audio::SoundDevice::SoundDevice(std::wstring pnpGuid, std::wstring name, Sou
 }
 
 ed::audio::SoundDevice::SoundDevice(const SoundDevice & toCopy)
-    : pnpGuid_(toCopy.pnpGuid_)
+    : pnpId_(toCopy.pnpId_)
       , name_(toCopy.name_)
       , flow_(toCopy.flow_)
       , renderVolume_(toCopy.renderVolume_)
@@ -30,7 +30,7 @@ ed::audio::SoundDevice::SoundDevice(const SoundDevice & toCopy)
 }
 
 ed::audio::SoundDevice::SoundDevice(SoundDevice && toMove) noexcept
-    : pnpGuid_(std::move(toMove.pnpGuid_))
+    : pnpId_(std::move(toMove.pnpId_))
       , name_(std::move(toMove.name_))
       , flow_(toMove.flow_)
       , renderVolume_(toMove.renderVolume_)
@@ -42,7 +42,7 @@ ed::audio::SoundDevice & ed::audio::SoundDevice::operator=(const SoundDevice & t
 {
     if (this != &toCopy)
     {
-        pnpGuid_ = toCopy.pnpGuid_;
+        pnpId_ = toCopy.pnpId_;
         name_ = toCopy.name_;
         flow_ = toCopy.flow_;
         renderVolume_ = toCopy.renderVolume_;
@@ -55,7 +55,7 @@ ed::audio::SoundDevice & ed::audio::SoundDevice::operator=(SoundDevice && toMove
 {
     if (this != &toMove)
     {
-        pnpGuid_ = std::move(toMove.pnpGuid_);
+        pnpId_ = std::move(toMove.pnpId_);
         name_ = std::move(toMove.name_);
         flow_ = toMove.flow_;
         renderVolume_ = toMove.renderVolume_;
@@ -71,7 +71,7 @@ std::wstring ed::audio::SoundDevice::GetName() const
 
 std::wstring ed::audio::SoundDevice::GetPnpId() const
 {
-    return pnpGuid_;
+    return pnpId_;
 }
 
 SoundDeviceFlowType ed::audio::SoundDevice::GetFlow() const
