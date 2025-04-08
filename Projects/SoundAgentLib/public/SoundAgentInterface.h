@@ -14,7 +14,8 @@ enum class SoundDeviceEventType : uint8_t {
     None = 0,
     Discovered,
     Detached,
-    VolumeChanged
+    VolumeRenderChanged,
+    VolumeCaptureChanged
 };
 
 enum class SoundDeviceFlowType : uint8_t {
