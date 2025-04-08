@@ -58,8 +58,29 @@ void ServiceObserver::OnCollectionChanged(SoundDeviceEventType event, const std:
 {
     FormattedOutput::PrintEvent(event, devicePnpId);
 
-    const auto soundDeviceInterface = collection_.CreateItem(devicePnpId);
-    PostToApi(event, soundDeviceInterface.get());
+    if (event == SoundDeviceEventType::Discovered
+		|| event == SoundDeviceEventType::VolumeRenderChanged) // TODO: separate processing, below
+    {
+        const auto soundDeviceInterface = collection_.CreateItem(devicePnpId);
+        PostToApi(event, soundDeviceInterface.get());
+    }
+    // TODO: other events
+    /*
+    else if (event == SoundDeviceEventType::VolumeRenderChanged)
+    {
+        const auto soundDeviceInterface = collection_.CreateItem(devicePnpId);
+        VolumeChangeToApi(devicePnpId, soundDeviceInterface->GetCurrentRenderVolume());
+    }
+    else if (event == SoundDeviceEventType::Removed)
+    {
+        RemoveToApi(devicePnpId);
+    }
+    else
+	{
+		SPD_L->warn("Unknown event type: {}", static_cast<int>(event));
+	}
+	*/
+
 }
 
 void ServiceObserver::OnTrace(const std::wstring & line)

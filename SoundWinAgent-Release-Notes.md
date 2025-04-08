@@ -12,6 +12,7 @@ Released on $date$
 
 ## Change
 - Sound Agent Service added
+- Separate VolumeRenderChanged and VolumeCaptureChanged events
 - README added
 --------
 

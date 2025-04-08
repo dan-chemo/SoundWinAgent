@@ -687,31 +687,29 @@ bool ed::audio::SoundDeviceCollection::TryCreateDeviceOnId(
     return TryCreateDeviceAndGetVolumeEndpoint(0, deviceSmartPtr, device, devId, outVolumeEndpoint);
 }
 
-std::vector<std::wstring> ed::audio::SoundDeviceCollection::GetDevicePnPIdsWithChangedVolume(
-    const TPnPIdToDeviceMap & old, const TPnPIdToDeviceMap & updated)
+std::pair<std::vector<std::wstring>, std::vector<std::wstring>>
+ed::audio::SoundDeviceCollection::GetDevicePnPIdsWithChangedVolume(
+    const TPnPIdToDeviceMap & devicesBeforeUpdate, const TPnPIdToDeviceMap & devicesAfterUpdate)
 {
-    std::vector<std::wstring> diff;
-    for (const auto & [fst, snd] : old)
+    std::vector<std::wstring> diffRender;
+    std::vector<std::wstring> diffCapture;
+    for (const auto & [pnpIdInBeforeList, deviceInBeforeList] : devicesBeforeUpdate)
     {
-        const auto oldPnPId = fst;
-        if (auto foundPair = updated.find(oldPnPId); foundPair != updated.end())
+        if (auto foundInAfterList = devicesAfterUpdate.find(pnpIdInBeforeList);
+            foundInAfterList != devicesAfterUpdate.end())
         {
-            auto oldVolume = snd.GetCurrentRenderVolume();
-            auto newVolume = foundPair->second.GetCurrentRenderVolume();
-            if (oldVolume != newVolume)
+            const auto & deviceInAfterList = foundInAfterList->second;
+            if (deviceInBeforeList.GetCurrentRenderVolume() != deviceInAfterList.GetCurrentRenderVolume())
             {
-                diff.push_back(oldPnPId);
-                continue;
+                diffRender.push_back(pnpIdInBeforeList);
             }
-			oldVolume = snd.GetCurrentCaptureVolume();
-            newVolume = foundPair->second.GetCurrentCaptureVolume();
-            if (oldVolume != newVolume)
+            if (deviceInBeforeList.GetCurrentCaptureVolume() != deviceInAfterList.GetCurrentCaptureVolume())
             {
-                diff.push_back(oldPnPId);
+                diffCapture.push_back(pnpIdInBeforeList);
             }
         }
     }
-    return diff;
+    return { diffRender, diffCapture };
 }
 
 HRESULT ed::audio::SoundDeviceCollection::OnDeviceStateChanged(LPCWSTR deviceId, DWORD dwNewState)
@@ -742,11 +740,18 @@ HRESULT ed::audio::SoundDeviceCollection::OnNotify(PAUDIO_VOLUME_NOTIFICATION_DA
 
     RefreshVolumes();
 
+    const auto [diffRender, diffCapture] = GetDevicePnPIdsWithChangedVolume(copy, pnpToDeviceMap_);
+
     for (
-        const auto diff = GetDevicePnPIdsWithChangedVolume(copy, pnpToDeviceMap_);
-        const auto & currPnPId : diff)
+        const auto& currPnPId : diffRender)
     {
-        NotifyObservers(SoundDeviceEventType::VolumeChanged, currPnPId);
+        NotifyObservers(SoundDeviceEventType::VolumeRenderChanged, currPnPId);
+    }
+
+    for (
+        const auto& currPnPId : diffCapture)
+    {
+        NotifyObservers(SoundDeviceEventType::VolumeCaptureChanged, currPnPId);
     }
 
     return hResult;

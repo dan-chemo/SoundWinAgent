@@ -48,7 +48,8 @@ inline std::wstring GetDeviceCollectionEventAsString(SoundDeviceEventType v)
     {
     COMMAND_CASE2(SoundDeviceEventType, Discovered)
     COMMAND_CASE2(SoundDeviceEventType, Detached)
-    COMMAND_CASE2(SoundDeviceEventType, VolumeChanged)
+    COMMAND_CASE2(SoundDeviceEventType, VolumeRenderChanged)
+    COMMAND_CASE2(SoundDeviceEventType, VolumeCaptureChanged)
     case SoundDeviceEventType::None:
     default: // NOLINT(clang-diagnostic-covered-switch-default)
         return L"Unknown event";

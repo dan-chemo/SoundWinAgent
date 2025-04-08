@@ -71,8 +71,8 @@ private:
                                                EndPointVolumeSmartPtr & outVolumeEndpoint
     ) const;
 
-    static std::vector<std::wstring> GetDevicePnPIdsWithChangedVolume(const TPnPIdToDeviceMap & old,
-                                                                      const TPnPIdToDeviceMap & updated);
+    static std::pair<std::vector<std::wstring>, std::vector<std::wstring>>
+        GetDevicePnPIdsWithChangedVolume(const TPnPIdToDeviceMap & devicesBeforeUpdate, const TPnPIdToDeviceMap & devicesAfterUpdate);
 
 public:
     void ResetContent() override;
