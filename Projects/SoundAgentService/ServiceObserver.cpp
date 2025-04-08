@@ -59,7 +59,8 @@ void ServiceObserver::OnCollectionChanged(SoundDeviceEventType event, const std:
     FormattedOutput::PrintEvent(event, devicePnpId);
 
     if (event == SoundDeviceEventType::Discovered
-		|| event == SoundDeviceEventType::VolumeRenderChanged) // TODO: separate processing, below
+		|| event == SoundDeviceEventType::VolumeRenderChanged
+        || event == SoundDeviceEventType::VolumeCaptureChanged) // TODO: separate processing, below
     {
         const auto soundDeviceInterface = collection_.CreateItem(devicePnpId);
         PostToApi(event, soundDeviceInterface.get());
@@ -69,7 +70,12 @@ void ServiceObserver::OnCollectionChanged(SoundDeviceEventType event, const std:
     else if (event == SoundDeviceEventType::VolumeRenderChanged)
     {
         const auto soundDeviceInterface = collection_.CreateItem(devicePnpId);
-        VolumeChangeToApi(devicePnpId, soundDeviceInterface->GetCurrentRenderVolume());
+        VolumeRenderChangeToApi(devicePnpId, soundDeviceInterface->GetCurrentRenderVolume());
+    }
+    else if (event == SoundDeviceEventType::VolumeCaptureChanged)
+    {
+        const auto soundDeviceInterface = collection_.CreateItem(devicePnpId);
+        VolumeCaptureChangeToApi(devicePnpId, soundDeviceInterface->GetCurrentCaptureVolume());
     }
     else if (event == SoundDeviceEventType::Removed)
     {
