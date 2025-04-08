@@ -48,8 +48,11 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="CaseInsensitiveSubstr.h" />
-    <ClInclude Include="CoInitRaiiHelper.h" />
-    <ClInclude Include="DefToString.h" />
+    <ClInclude Include="public\ClassDefHelper.h" />
+    <ClInclude Include="public\CoInitRaiiHelper.h" />
+    <ClInclude Include="public\DefToString.h" />
+    <ClInclude Include="public\generate-uuid.h" />
+    <ClInclude Include="public\SoundAgentInterface.h" />
     <ClInclude Include="SoundDevice.h" />
     <ClInclude Include="SoundDeviceCollection.h" />
     <ClInclude Include="MultipleNotificationClient.h" />
@@ -58,6 +61,7 @@
     <ClInclude Include="Utilities.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="SoundAgent.cpp" />
     <ClCompile Include="SoundDevice.cpp" />
     <ClCompile Include="SoundDeviceCollection.cpp" />
     <ClCompile Include="MultipleNotificationClient.cpp" />

@@ -4,9 +4,9 @@
 
 #include <CppUnitTest.h>
 
-#include "../SoundAgentDll/SoundAgentInterface.h"
+#include <public/SoundAgentInterface.h>
 #include "SoundDevice.h"
-#include "../SoundAgentLib/generate-uuid.h"
+#include <public/generate-uuid.h>
 #include "CaseInsensitiveSubstr.h"
 
 using namespace std::literals::string_literals;
@@ -18,7 +18,7 @@ TEST_CLASS(SoundAgentLibTests) {
     // TEST_METHOD(CollectionEmpty)
     // {
     //     SoundAgent ac;
-    //     const std::unique_ptr<AudioDeviceCollectionInterface> coll(ac.CreateDeviceCollection(L"Nothing At All"));
+    //     const std::unique_ptr<SoundDeviceCollectionInterface> coll(ac.CreateDeviceCollection(L"Nothing At All"));
     //     Assert::IsTrue(coll->GetSize() == 0);
     // }
 
@@ -27,7 +27,7 @@ TEST_CLASS(SoundAgentLibTests) {
         const auto nameExpected = L"name01"s;
         const auto pnpIdExpected = generate_w_uuid();
 
-        const SoundDevice dv(pnpIdExpected, nameExpected, DeviceFlowEnum::Capture, 0, 200);
+        const SoundDevice dv(pnpIdExpected, nameExpected, SoundDeviceFlowType::Capture, 0, 200);
 
         Assert::AreEqual(nameExpected, dv.GetName());
         Assert::AreEqual(pnpIdExpected, dv.GetPnpId());

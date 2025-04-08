@@ -15,26 +15,26 @@
 #include <valarray>
 #include <magic_enum_iostream.hpp>
 
-#include "DefToString.h"
-#include "generate-uuid.h"
+#include "public/DefToString.h"
+#include "public/generate-uuid.h"
 #include "Utilities.h"
 #include "CaseInsensitiveSubstr.h"
 
 using namespace std::literals::string_literals;
 
-inline DeviceFlowEnum ConvertFromLowLevelFlow(const EDataFlow flow)
+inline SoundDeviceFlowType ConvertFromLowLevelFlow(const EDataFlow flow)
 {
     switch (flow)
     {
     case eRender:
-        return DeviceFlowEnum::Render;
+        return SoundDeviceFlowType::Render;
     case eCapture:
-        return DeviceFlowEnum::Capture;
+        return SoundDeviceFlowType::Capture;
     case eAll:
-        return DeviceFlowEnum::RenderAndCapture;
+        return SoundDeviceFlowType::RenderAndCapture;
     case EDataFlow_enum_count:
     default: // NOLINT(clang-diagnostic-covered-switch-default)
-        return DeviceFlowEnum::None;
+        return SoundDeviceFlowType::None;
     }
 }
 
@@ -84,12 +84,22 @@ std::unique_ptr<SoundDeviceInterface> ed::audio::SoundDeviceCollection::CreateIt
     throw std::runtime_error("Device number not found");
 }
 
-void ed::audio::SoundDeviceCollection::Subscribe(AudioDeviceCollectionObserverInterface & observer)
+std::unique_ptr<SoundDeviceInterface> ed::audio::SoundDeviceCollection::CreateItem(
+    const std::wstring & devicePnpId) const
+{
+	if (!pnpToDeviceMap_.contains(devicePnpId))
+	{
+		throw std::runtime_error("Device pnpId not found");
+	}
+	return std::make_unique<SoundDevice>(pnpToDeviceMap_.at(devicePnpId));
+}
+
+void ed::audio::SoundDeviceCollection::Subscribe(SoundDeviceObserverInterface & observer)
 {
     observers_.insert(&observer);
 }
 
-void ed::audio::SoundDeviceCollection::Unsubscribe(AudioDeviceCollectionObserverInterface & observer)
+void ed::audio::SoundDeviceCollection::Unsubscribe(SoundDeviceObserverInterface & observer)
 {
     observers_.erase(&observer);
 }
@@ -97,7 +107,7 @@ void ed::audio::SoundDeviceCollection::Unsubscribe(AudioDeviceCollectionObserver
 
 bool ed::audio::SoundDeviceCollection::TryCreateDeviceAndGetVolumeEndpoint(
     ULONG i,
-    CComPtr<IMMDevice> deviceEndpointSmartPtr,
+    CComPtr<IMMDevice> deviceEndpointSmartPtr,  // NOLINT(performance-unnecessary-value-param)
     SoundDevice & device,
     std::wstring & deviceId,
     EndPointVolumeSmartPtr & outVolumeEndpoint
@@ -115,7 +125,7 @@ bool ed::audio::SoundDeviceCollection::TryCreateDeviceAndGetVolumeEndpoint(
         CoTaskMemFree(deviceIdPtr);
     }
     // Get flow direction via IMMEndpoint
-    auto flow = DeviceFlowEnum::None;
+    auto flow = SoundDeviceFlowType::None;
     {
         EDataFlow lowLevelFlow;
         IMMEndpoint * pEndpoint = nullptr;
@@ -235,10 +245,10 @@ bool ed::audio::SoundDeviceCollection::TryCreateDeviceAndGetVolumeEndpoint(
 
     switch (flow)
     {
-    case DeviceFlowEnum::Capture:
+    case SoundDeviceFlowType::Capture:
         captureVolume = volume;
         break;
-    case DeviceFlowEnum::Render:
+    case SoundDeviceFlowType::Render:
         renderVolume = volume;
         break;
     default:
@@ -322,16 +332,16 @@ ed::audio::SoundDevice ed::audio::SoundDeviceCollection::MergeDeviceWithExisting
 
             switch (flow)
             {
-            case DeviceFlowEnum::Capture:
+            case SoundDeviceFlowType::Capture:
                 renderVolume = foundDev.GetCurrentRenderVolume();
                 break;
-            case DeviceFlowEnum::Render:
+            case SoundDeviceFlowType::Render:
                 captureVolume = foundDev.GetCurrentCaptureVolume();
             default:
                 break;
             }
 
-            flow = DeviceFlowEnum::RenderAndCapture;
+            flow = SoundDeviceFlowType::RenderAndCapture;
         }
         auto foundDevNameAsSet = Split(foundDev.GetName(), L'/');
 
@@ -441,7 +451,7 @@ void ed::audio::SoundDeviceCollection::UpdateDeviceVolume(SoundDeviceCollection*
     )
     {
         auto& foundDev = foundPair->second;
-        if (device.GetFlow() == DeviceFlowEnum::Render)
+        if (device.GetFlow() == SoundDeviceFlowType::Render)
         {
             foundDev.SetCurrentRenderVolume(device.GetCurrentRenderVolume());
         }
@@ -453,7 +463,7 @@ void ed::audio::SoundDeviceCollection::UpdateDeviceVolume(SoundDeviceCollection*
 }
 
 
-void ed::audio::SoundDeviceCollection::NotifyObservers(AudioDeviceCollectionEvent action, const std::wstring & devicePNpId) const
+void ed::audio::SoundDeviceCollection::NotifyObservers(SoundDeviceEventType action, const std::wstring & devicePNpId) const
 {
     for (auto * observer : observers_)
     {
@@ -465,7 +475,7 @@ bool ed::audio::SoundDeviceCollection::IsDeviceApplicable(const SoundDevice & de
 {
     using magic_enum::iostream_operators::operator<<; // out-of-the-box stream operators for enums
 
-    if (!bothHeadsetAndMicro_ && device.GetFlow() != DeviceFlowEnum::Render)
+    if (!bothHeadsetAndMicro_ && device.GetFlow() != SoundDeviceFlowType::Render)
     {
         LOG_INFO(
             L"Got a low-level event concerning the device \"" << device.GetName() << L"\" , that is in \"" << device.
@@ -540,7 +550,7 @@ HRESULT ed::audio::SoundDeviceCollection::OnDeviceAdded(LPCWSTR deviceId)
                 devIdToEndpointVolumes_[deviceId] = endPointVolumeSmartPtr;
             }
 
-            NotifyObservers(AudioDeviceCollectionEvent::Discovered, device.GetPnpId());
+            NotifyObservers(SoundDeviceEventType::Discovered, device.GetPnpId());
         }
         LOG_INFO(L"ADDED FINISHED: device id \"" << deviceId << L".\n")
     }
@@ -551,7 +561,7 @@ bool ed::audio::SoundDeviceCollection::CheckRemovalAndUnmergeDeviceFromExistingO
     const SoundDevice & device, SoundDevice & unmergedDev) const
 {
     unmergedDev = {
-		device.GetPnpId(), device.GetName(), DeviceFlowEnum::None, device.GetCurrentRenderVolume(), device.GetCurrentCaptureVolume()
+		device.GetPnpId(), device.GetName(), SoundDeviceFlowType::None, device.GetCurrentRenderVolume(), device.GetCurrentCaptureVolume()
     };
 
     if
@@ -575,7 +585,7 @@ bool ed::audio::SoundDeviceCollection::CheckRemovalAndUnmergeDeviceFromExistingO
 
         if
         (
-            foundDev.GetFlow() == DeviceFlowEnum::RenderAndCapture
+            foundDev.GetFlow() == SoundDeviceFlowType::RenderAndCapture
         )
         {
             uint16_t renderVolume = foundDev.GetCurrentRenderVolume();
@@ -583,12 +593,12 @@ bool ed::audio::SoundDeviceCollection::CheckRemovalAndUnmergeDeviceFromExistingO
 
             switch (flow)
             {
-            case DeviceFlowEnum::Capture:
-                flow = DeviceFlowEnum::Render;
+            case SoundDeviceFlowType::Capture:
+                flow = SoundDeviceFlowType::Render;
                 captureVolume = 0;
                 break;
-            case DeviceFlowEnum::Render:
-                flow = DeviceFlowEnum::Capture;
+            case SoundDeviceFlowType::Render:
+                flow = SoundDeviceFlowType::Capture;
                 renderVolume = 0;
                 break;
             default:
@@ -637,7 +647,7 @@ HRESULT ed::audio::SoundDeviceCollection::OnDeviceRemoved(LPCWSTR deviceId)
             if (SoundDevice possiblyUnmergedDevice; 
                 CheckRemovalAndUnmergeDeviceFromExistingOneBasedOnPnpIdAndFlow(removedDeviceToUnmerge, possiblyUnmergedDevice))
             {
-                if (possiblyUnmergedDevice.GetFlow() == DeviceFlowEnum::None)
+                if (possiblyUnmergedDevice.GetFlow() == SoundDeviceFlowType::None)
                 {
                     LOG_INFO(L"REMOVED UNMERGED: nothing.")
                     pnpToDeviceMap_.erase(possiblyUnmergedDevice.GetPnpId());
@@ -650,7 +660,7 @@ HRESULT ed::audio::SoundDeviceCollection::OnDeviceRemoved(LPCWSTR deviceId)
                     pnpToDeviceMap_[possiblyUnmergedDevice.GetPnpId()] = possiblyUnmergedDevice;
                 }
                 UnregisterAndRemoveEndpointsVolumes(deviceId);
-                NotifyObservers(AudioDeviceCollectionEvent::Detached, removedDeviceToUnmerge.GetPnpId());
+                NotifyObservers(SoundDeviceEventType::Detached, removedDeviceToUnmerge.GetPnpId());
             }
         }
         LOG_INFO(L"REMOVED FINISHED: device id \"" << deviceId << L".\n")
@@ -736,7 +746,7 @@ HRESULT ed::audio::SoundDeviceCollection::OnNotify(PAUDIO_VOLUME_NOTIFICATION_DA
         const auto diff = GetDevicePnPIdsWithChangedVolume(copy, pnpToDeviceMap_);
         const auto & currPnPId : diff)
     {
-        NotifyObservers(AudioDeviceCollectionEvent::VolumeChanged, currPnPId);
+        NotifyObservers(SoundDeviceEventType::VolumeChanged, currPnPId);
     }
 
     return hResult;

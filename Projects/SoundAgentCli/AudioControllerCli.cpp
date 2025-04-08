@@ -7,9 +7,9 @@
 #include <memory>
 #include <tchar.h>
 
-#include "../SoundAgentLib/CoInitRaiiHelper.h"
-#include "../SoundAgentDll/SoundAgentInterface.h"
-#include "../SoundAgentLib/DefToString.h"
+#include <public/CoInitRaiiHelper.h>
+#include <public/SoundAgentInterface.h>
+#include <public/DefToString.h>
 #include "TimeUtils.h" // Include the header for TimeUtils
 
 namespace
@@ -29,9 +29,9 @@ namespace
 }
 
 
-class ServiceObserver final : public AudioDeviceCollectionObserverInterface {
+class ServiceObserver final : public SoundDeviceObserverInterface {
 public:
-    explicit ServiceObserver(AudioDeviceCollectionInterface & collection)
+    explicit ServiceObserver(SoundDeviceCollectionInterface & collection)
         : collection_(collection)
     {
         if (std::filesystem::path logFile;
@@ -76,7 +76,7 @@ public:
         PrintCollection();
     }
 
-    void OnCollectionChanged(AudioDeviceCollectionEvent event, const std::wstring& devicePnpId) override
+    void OnCollectionChanged(SoundDeviceEventType event, const std::wstring& devicePnpId) override
     {
         std::wcout << '\n' << CurrentLocalTimeWithoutDate << L"Event caught: " << ed::GetDeviceCollectionEventAsString(event) << L"."
             <<  L" Device PnP id: " << devicePnpId << L'\n';
@@ -101,7 +101,7 @@ public:
     }
 
 private:
-    AudioDeviceCollectionInterface & collection_;
+    SoundDeviceCollectionInterface & collection_;
 };
 
 bool StopAndWaitForInput()

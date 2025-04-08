@@ -15,8 +15,8 @@
 #include "FormattedOutput.h"
 #include "ServiceObserver.h"
 
-#include "../SoundAgentLib/CoInitRaiiHelper.h"
-#include "../SoundAgentDll/SoundAgentInterface.h"
+#include <public/CoInitRaiiHelper.h>
+#include <public/SoundAgentInterface.h>
 
 
 class AudioDeviceService final : public Poco::Util::ServerApplication {

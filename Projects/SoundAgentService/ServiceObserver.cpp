@@ -8,7 +8,7 @@
 
 #include <SpdLogger.h>
 
-ServiceObserver::ServiceObserver(AudioDeviceCollectionInterface& collection,
+ServiceObserver::ServiceObserver(SoundDeviceCollectionInterface& collection,
     std::wstring apiBaseUrl,
     std::wstring universalToken,
     std::wstring codespaceName) // Added codespaceName parameter
@@ -20,6 +20,13 @@ ServiceObserver::ServiceObserver(AudioDeviceCollectionInterface& collection,
 {
 }
 
+void ServiceObserver::PostToApi(const SoundDeviceEventType messageType, const SoundDeviceInterface* devicePtr) const
+{
+    const AudioDeviceApiClient apiClient(requestProcessorSmartPtr_);
+    apiClient.PostDeviceToApi(messageType, devicePtr);
+    apiClient.PostDeviceToApi(messageType, devicePtr, " (copy)");
+}
+
 void ServiceObserver::PostAndPrintCollection() const
 {
     std::string message("Processing device collection...");
@@ -28,12 +35,11 @@ void ServiceObserver::PostAndPrintCollection() const
     for (size_t i = 0; i < collection_.GetSize(); ++i)
     {
         const std::unique_ptr deviceSmartPtr(collection_.CreateItem(i));
+
         FormattedOutput::PrintDeviceInfo(deviceSmartPtr.get());
         if (!apiBaseUrl_.empty())
         {
-            AudioDeviceApiClient apiClient(requestProcessorSmartPtr_);
-            apiClient.PostDeviceToApi(deviceSmartPtr.get());
-            apiClient.PostDeviceToApi(deviceSmartPtr.get(), " (copy)");
+            PostToApi(SoundDeviceEventType::None, deviceSmartPtr.get());
         }
         else
         {
@@ -48,15 +54,12 @@ void ServiceObserver::PostAndPrintCollection() const
         << FormattedOutput::CurrentLocalTimeWithoutDate << "-----------------------------------------------\n";
 }
 
-void ServiceObserver::OnCollectionChanged(AudioDeviceCollectionEvent event, const std::wstring & devicePnpId)
+void ServiceObserver::OnCollectionChanged(SoundDeviceEventType event, const std::wstring & devicePnpId)
 {
     FormattedOutput::PrintEvent(event, devicePnpId);
 
-    if (event == AudioDeviceCollectionEvent::Discovered
-        || event == AudioDeviceCollectionEvent::VolumeChanged)
-    {
-        PostAndPrintCollection();
-    }
+    const auto soundDeviceInterface = collection_.CreateItem(devicePnpId);
+    PostToApi(event, soundDeviceInterface.get());
 }
 
 void ServiceObserver::OnTrace(const std::wstring & line)

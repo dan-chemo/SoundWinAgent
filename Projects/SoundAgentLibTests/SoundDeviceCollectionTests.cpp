@@ -6,7 +6,6 @@
 
 #include <CppUnitTest.h>
 
-#include "../SoundAgentDll/SoundAgentInterface.h"
 #include "SoundDeviceCollection.h"
 
 

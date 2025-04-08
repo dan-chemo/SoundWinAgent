@@ -4,7 +4,7 @@
 #include <endpointvolume.h>
 #include <mmdeviceapi.h>
 
-#include "../SoundAgentDll/ClassDefHelper.h"
+#include "public/ClassDefHelper.h"
 
 
 namespace ed::audio {

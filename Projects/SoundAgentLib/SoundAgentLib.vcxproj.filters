@@ -27,9 +27,6 @@
     <ClInclude Include="SoundDevice.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="DefToString.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="MultipleNotificationClient.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -39,7 +36,19 @@
     <ClInclude Include="CaseInsensitiveSubstr.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="CoInitRaiiHelper.h">
+    <ClInclude Include="public\ClassDefHelper.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="public\CoInitRaiiHelper.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="public\DefToString.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="public\generate-uuid.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="public\SoundAgentInterface.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -54,6 +63,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="SoundDevice.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="SoundAgent.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

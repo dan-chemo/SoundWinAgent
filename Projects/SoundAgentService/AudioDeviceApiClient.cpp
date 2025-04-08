@@ -3,7 +3,7 @@
 
 #include "AudioDeviceApiClient.h"
 
-#include "../SoundAgentDll/SoundAgentInterface.h"
+#include <public/SoundAgentInterface.h>
 
 #include <SpdLogger.h>
 
@@ -25,7 +25,7 @@ AudioDeviceApiClient::AudioDeviceApiClient(std::shared_ptr<HttpRequestProcessor>
 {
 }
 
-void AudioDeviceApiClient::PostDeviceToApi(const SoundDeviceInterface * device, const std::string & hintPrefix) const
+void AudioDeviceApiClient::PostDeviceToApi(SoundDeviceEventType eventType, const SoundDeviceInterface* device, const std::string& hint) const
 {
     if (!device)
     {
@@ -46,8 +46,10 @@ void AudioDeviceApiClient::PostDeviceToApi(const SoundDeviceInterface * device, 
     const nlohmann::json payload = {
         {"pnpId", pnpIdUtf8},
         {"name", nameUtf8},
-        {"volume", static_cast<const int>(device->GetCurrentRenderVolume())},
-        {"lastSeen", localTimeAsString},
+        {"flowType", static_cast<const int>(device->GetFlow())},
+        {"renderVolume", static_cast<const int>(device->GetCurrentRenderVolume())},
+        {"captureVolume", static_cast<const int>(device->GetCurrentCaptureVolume())},
+        {"updateDate", localTimeAsString},
         {"hostName", hostNameHash}
     };
 
@@ -62,7 +64,7 @@ void AudioDeviceApiClient::PostDeviceToApi(const SoundDeviceInterface * device, 
     SPD_L->info("Enqueueing request for device: {}...", pnpIdUtf8);
 
     // Instead of sending directly, enqueue the request in the processor
-    if(requestProcessor_->EnqueueRequest(request, hintPrefix + " for device: " + pnpIdUtf8))
+    if(requestProcessor_->EnqueueRequest(request, hint + " for device: " + pnpIdUtf8))
     {
 		FormattedOutput::LogAndPrint("Device data enqueued for: " + pnpIdUtf8);
 	}

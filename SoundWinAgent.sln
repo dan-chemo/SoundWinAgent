@@ -15,8 +15,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SoundAgentCli", "Projects\SoundAgentCli\SoundAgentCli.vcxproj", "{887D7CD4-2184-467F-AC36-153E627EC218}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SoundAgentDll", "Projects\SoundAgentDll\SoundAgentDll.vcxproj", "{92AFAD2A-A573-4239-80DC-4CDC28FD3A7E}"
-EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SoundAgentLibTests", "Projects\SoundAgentLibTests\SoundAgentLibTests.vcxproj", "{C9BB6776-0226-499E-80BC-1184D43057D4}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SoundAgentService", "Projects\SoundAgentService\SoundAgentService.vcxproj", "{BC83DAA4-CBA8-4D4F-B6B9-3BAA9B1849A8}"
@@ -39,19 +37,12 @@ Global
 		{887D7CD4-2184-467F-AC36-153E627EC218}.Release|Any CPU.ActiveCfg = Release|x64
 		{887D7CD4-2184-467F-AC36-153E627EC218}.Release|Any CPU.Build.0 = Release|x64
 		{887D7CD4-2184-467F-AC36-153E627EC218}.Release|Any CPU.Deploy.0 = Release|x64
-		{92AFAD2A-A573-4239-80DC-4CDC28FD3A7E}.Debug|Any CPU.ActiveCfg = Debug|x64
-		{92AFAD2A-A573-4239-80DC-4CDC28FD3A7E}.Debug|Any CPU.Build.0 = Debug|x64
-		{92AFAD2A-A573-4239-80DC-4CDC28FD3A7E}.Debug|Any CPU.Deploy.0 = Debug|x64
-		{92AFAD2A-A573-4239-80DC-4CDC28FD3A7E}.Release|Any CPU.ActiveCfg = Release|x64
-		{92AFAD2A-A573-4239-80DC-4CDC28FD3A7E}.Release|Any CPU.Build.0 = Release|x64
-		{92AFAD2A-A573-4239-80DC-4CDC28FD3A7E}.Release|Any CPU.Deploy.0 = Release|x64
 		{C9BB6776-0226-499E-80BC-1184D43057D4}.Debug|Any CPU.ActiveCfg = Debug|x64
 		{C9BB6776-0226-499E-80BC-1184D43057D4}.Debug|Any CPU.Build.0 = Debug|x64
 		{C9BB6776-0226-499E-80BC-1184D43057D4}.Debug|Any CPU.Deploy.0 = Debug|x64
 		{C9BB6776-0226-499E-80BC-1184D43057D4}.Release|Any CPU.ActiveCfg = Release|x64
 		{C9BB6776-0226-499E-80BC-1184D43057D4}.Release|Any CPU.Build.0 = Release|x64
 		{C9BB6776-0226-499E-80BC-1184D43057D4}.Release|Any CPU.Deploy.0 = Release|x64
-
 		{BC83DAA4-CBA8-4D4F-B6B9-3BAA9B1849A8}.Debug|Any CPU.ActiveCfg = Debug|x64
 		{BC83DAA4-CBA8-4D4F-B6B9-3BAA9B1849A8}.Debug|Any CPU.Build.0 = Debug|x64
 		{BC83DAA4-CBA8-4D4F-B6B9-3BAA9B1849A8}.Debug|Any CPU.Deploy.0 = Debug|x64

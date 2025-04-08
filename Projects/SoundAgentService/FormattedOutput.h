@@ -1,6 +1,6 @@
 ﻿#pragma once
 
-#include "../SoundAgentDll/SoundAgentInterface.h"
+#include <public/SoundAgentInterface.h>
 
 
 class FormattedOutput final
@@ -14,7 +14,7 @@ public:
     static void LogAndPrint(const std::string& mess);
     static void LogAsErrorPrintAndThrow(const std::string& mess);
 
-    static void PrintEvent(AudioDeviceCollectionEvent event, const std::wstring& devicePnpId);
+    static void PrintEvent(SoundDeviceEventType event, const std::wstring& devicePnpId);
 
     static void PrintDeviceInfo(const SoundDeviceInterface* device);
 
