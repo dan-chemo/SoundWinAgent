@@ -18,7 +18,7 @@
     <CharacterSet>Unicode</CharacterSet>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
     <OutDir>bin\$(Platform)\$(Configuration)\</OutDir>
-    <IntDir>obj\$(Platform)\$(Configuration)\</IntDir>
+    <IntDir>$(Platform)\$(Configuration)\</IntDir>
     <SignExeAndMsi>true</SignExeAndMsi>
     <CertificateName Condition=" '$(CertificateName)' == '' ">$(ProjectName)</CertificateName>
   </PropertyGroup>
