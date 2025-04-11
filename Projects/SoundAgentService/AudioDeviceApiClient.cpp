@@ -13,7 +13,6 @@
 
 
 #include <TimeUtils.h>
-#include <boost/crc.hpp>
 
 #include "FormattedOutput.h"
 #include "HttpRequestProcessor.h"
@@ -38,7 +37,7 @@ void AudioDeviceApiClient::PostDeviceToApi(SoundDeviceEventType eventType, const
     // Convert wstring parameters to UTF-8 strings for JSON
     const std::string pnpIdUtf8 = utility::conversions::to_utf8string(device->GetPnpId());
     const std::string nameUtf8 = utility::conversions::to_utf8string(device->GetName());
-    const std::string hostNameHash = GetHostNameHash();
+    const std::string hostNameHash = GetHostName(); //GetHostNameHash();
 
     auto localTimeAsString = ed::getLocalTimeAsString("T");
     localTimeAsString = localTimeAsString.substr(0, localTimeAsString.length() - 7);
@@ -74,31 +73,17 @@ void AudioDeviceApiClient::PostDeviceToApi(SoundDeviceEventType eventType, const
 	}
 }
 
-std::string AudioDeviceApiClient::GetHostNameHash()
+std::string AudioDeviceApiClient::GetHostName()
 {
-	static const std::string HostNameHash = []() -> std::string
-		{
+    static const std::string HOST_NAME = []() -> std::string
+        {
             wchar_t hostNameBuffer[MAX_COMPUTERNAME_LENGTH + 1];
             DWORD bufferSize = std::size(hostNameBuffer);
             GetComputerNameW(hostNameBuffer, &bufferSize);
             std::wstring hostName(hostNameBuffer);
             std::ranges::transform(hostName, hostName.begin(),
-                                   [](wchar_t c) { return std::toupper(c); });
-            return ShortHash(utility::conversions::to_utf8string(hostNameBuffer));
-		}();
-    return HostNameHash;
+                [](wchar_t c) { return std::toupper(c); });
+            return utility::conversions::to_utf8string(hostNameBuffer);
+        }();
+    return HOST_NAME;
 }
-
-std::string AudioDeviceApiClient::ShortHash(const std::string & input)
-{
-    boost::crc_32_type crc32;
-    crc32.process_bytes(input.data(), input.length());
-
-    // Get the CRC32 checksum
-    const uint32_t checksum = crc32.checksum();
-
-    std::ostringstream ss;
-    ss << std::hex << checksum;
-    return ss.str();
-}
-
